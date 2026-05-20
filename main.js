@@ -117,7 +117,7 @@ var PROJECTS = [
     tech: 'React · Tailwind CSS · Flask · Python (SciPy / Pandas)',
     desc:
       'A forensic audit interface for high-risk algorithmic pricing: making automated pricing decisions observable, accountable, and regulator-ready when the underlying model is a proprietary black box.',
-    heroVideo: 'videos/ai-governance.mp4',
+    heroVideo: 'assets/ai-governance-dashboard.mp4',
     hero: 'photos/ai-governance-hero.png',
     sections: [],
   },
@@ -551,6 +551,15 @@ function sudokuFullscreenMount(host) {
   var focusIx = -1;
 
   host.className = 'gfs-body gfs-body--scroll gfs-body--sudoku';
+  var sudIsDark = document.documentElement.dataset.theme !== 'light';
+  host.setAttribute('data-theme', sudIsDark ? 'dark' : 'light');
+  var sudThemeBtn = document.createElement('button');
+  sudThemeBtn.type = 'button';
+  sudThemeBtn.className = 'gfs-game-theme-btn';
+  sudThemeBtn.id = 'sud-theme-toggle';
+  sudThemeBtn.textContent = sudIsDark ? '[ DAY ]' : '[ NIGHT ]';
+  var sudFs = document.getElementById('game-fullscreen');
+  sudFs.appendChild(sudThemeBtn);
   host.innerHTML =
     '<header class="sud-head">' +
       '<p class="sud-kicker">RAN · PLAYROOM</p>' +
@@ -676,7 +685,16 @@ function sudokuFullscreenMount(host) {
     newRound(b.dataset.sudDiff);
   });
 
+  sudThemeBtn.addEventListener('click', function() {
+    sudIsDark = !sudIsDark;
+    host.setAttribute('data-theme', sudIsDark ? 'dark' : 'light');
+    sudThemeBtn.textContent = sudIsDark ? '[ DAY ]' : '[ NIGHT ]';
+  });
+
   ranGameFullscreenClosePrep();
+  ranFullscreenCleanup = function() {
+    if (sudThemeBtn.parentNode) sudThemeBtn.parentNode.removeChild(sudThemeBtn);
+  };
   ranGameFsEsc = function(e) {
     if (e.key === 'Escape')
       document.getElementById('gfs-close').click();
@@ -739,7 +757,16 @@ function memoryFullscreenMount(host) {
   var pairsTotal = 0;
   var flipBackTimer = null;
 
+  var memIsDark = document.documentElement.dataset.theme !== 'light';
   host.className = 'gfs-body gfs-body--memory';
+  host.setAttribute('data-theme', memIsDark ? 'dark' : 'light');
+  var memThemeBtn = document.createElement('button');
+  memThemeBtn.type = 'button';
+  memThemeBtn.className = 'gfs-game-theme-btn';
+  memThemeBtn.id = 'mem-theme-toggle';
+  memThemeBtn.textContent = memIsDark ? '[ DAY ]' : '[ NIGHT ]';
+  var memFs = document.getElementById('game-fullscreen');
+  memFs.appendChild(memThemeBtn);
   host.innerHTML =
     '<header class="mem-head">' +
       '<p class="mem-kicker">RAN · PLAYROOM</p>' +
@@ -955,8 +982,15 @@ function memoryFullscreenMount(host) {
     startRound(b.dataset.memDiff);
   });
 
+  memThemeBtn.addEventListener('click', function() {
+    memIsDark = !memIsDark;
+    host.setAttribute('data-theme', memIsDark ? 'dark' : 'light');
+    memThemeBtn.textContent = memIsDark ? '[ DAY ]' : '[ NIGHT ]';
+  });
+
   ranFullscreenCleanup = function() {
     stopMemoryTimers();
+    if (memThemeBtn.parentNode) memThemeBtn.parentNode.removeChild(memThemeBtn);
   };
   ranGameFsEsc = function(e) {
     if (e.key === 'Escape')
@@ -1091,16 +1125,8 @@ function initTextParticles() {
 
   function syncHomeChrome() {
     var panelHome = document.getElementById('panel-home');
-    var hint = document.getElementById('home-hero-hint');
     if (!panelHome) return;
     panelHome.setAttribute('data-home-hero-phase', HOME_HERO_PHASE);
-    if (hint) {
-      hint.hidden = false;
-      hint.textContent =
-        HOME_HERO_PHASE === 'intro'
-          ? 'Drag the type · Click open space to read'
-          : 'Hover oneself · Click to return';
-    }
     panelHome.classList.add('home-hero-hint-on');
     panelHome.classList.remove('home-nav-reveal');
     void panelHome.offsetWidth;
@@ -1684,15 +1710,6 @@ function initTextParticles() {
     var mx = e.clientX - rect.left;
     var my = e.clientY - rect.top;
     if (HOME_HERO_PHASE === 'intro') {
-      var introHit = hitIntroZone(mx, my);
-      if (introHit === 'ran') {
-        showSection('about');
-        return;
-      }
-      if (introHit === 'song') {
-        showSection('observer');
-        return;
-      }
     } else if (
       mx >= oneselfZone.x1 &&
       mx <= oneselfZone.x2 &&
@@ -2016,7 +2033,104 @@ document.getElementById('close-sheet').addEventListener('click', closeSheet);
 /* ────────────────────────────────────────────────────
    BUILDER — case study video (shared hero + inline sections)
    ──────────────────────────────────────────────────── */
+function youtubeVideoIdFromUrl(src) {
+  if (!src) return null;
+  var s = String(src).trim();
+  var m = s.match(/(?:youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{6,})/i);
+  if (m) return m[1];
+  m = s.match(/[?&]v=([A-Za-z0-9_-]{6,})/i);
+  if (m) return m[1];
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      var u = new URL(s);
+      var h = u.hostname.replace(/^www\./, '');
+      if (h === 'youtu.be') {
+        var id = u.pathname.replace(/^\//, '').split('/')[0];
+        return id && /^[A-Za-z0-9_-]{6,}$/.test(id) ? id : null;
+      }
+      if (h === 'youtube.com' || h === 'm.youtube.com') {
+        if (u.pathname.indexOf('/embed/') === 0) {
+          return u.pathname.slice(7).split('/')[0] || null;
+        }
+        var v = u.searchParams.get('v');
+        return v && /^[A-Za-z0-9_-]{6,}$/.test(v) ? v : null;
+      }
+    } catch (_e) {}
+  }
+  return null;
+}
+
 function caseStudyVideoHtml(src) {
+  var s = String(src || '');
+
+  // ── Vimeo ──────────────────────────────────────────
+  if (/vimeo\.com/i.test(s)) {
+    return (
+      '<div class="cs-vid-container cs-vid-container--vimeo">' +
+        '<div class="cs-yt-aspect" style="position:relative;padding-bottom:75%;height:0;overflow:hidden;">' +
+          '<iframe class="cs-vimeo-embed" src="' + s.replace(/"/g, '&quot;') + '" frameborder="0"' +
+          ' allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"' +
+          ' referrerpolicy="strict-origin-when-cross-origin"' +
+          ' style="position:absolute;top:0;left:0;width:100%;height:100%;"' +
+          ' title="AI Governance Dashboard"></iframe>' +
+          '<div class="cs-vimeo-mask"></div>' +
+        '</div>' +
+        '<div class="vid-bar">' +
+          '<button type="button" class="vid-playpause">[ PLAY ]</button>' +
+          '<div class="vid-progress-wrap">' +
+            '<input type="range" class="vid-seek" min="0" max="1000" value="0" aria-label="Playback position" />' +
+          '</div>' +
+          '<span class="vid-time">0:00 / 0:00</span>' +
+          '<div class="vid-speeds">' +
+            '<button type="button" class="vid-spd" data-spd="0.5">×0.5</button>' +
+            '<button type="button" class="vid-spd vid-spd--active" data-spd="1">×1</button>' +
+            '<button type="button" class="vid-spd" data-spd="1.5">×1.5</button>' +
+            '<button type="button" class="vid-spd" data-spd="2">×2</button>' +
+          '</div>' +
+          '<button type="button" class="vid-fullscreen" aria-label="Full screen video">[ FULL ]</button>' +
+          '<div class="vid-vol-group">' +
+            '<button type="button" class="vid-mute">[ SOUND ]</button>' +
+            '<input type="range" class="vid-vol-slider" min="0" max="1" step="0.05" value="1" aria-label="Volume" />' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ── YouTube ────────────────────────────────────────
+  var ytId = youtubeVideoIdFromUrl(src);
+  var isYoutubeish = /youtu\.be|youtube\.com/i.test(s);
+  if (ytId || isYoutubeish) {
+    if (!ytId) {
+      return (
+        '<div class="cs-vid-container cs-vid-container--youtube cs-vid-container--youtube-fallback">' +
+          '<p class="cs-yt-fallback">Video link could not be embedded.</p>' +
+          '<p><a href="' +
+          s.replace(/"/g, '&quot;') +
+          '" class="text-link" target="_blank" rel="noopener noreferrer">Watch on YouTube</a></p>' +
+        '</div>'
+      );
+    }
+    var watchUrl = 'https://www.youtube.com/watch?v=' + encodeURIComponent(ytId);
+    var embedSrc =
+      'https://www.youtube.com/embed/' +
+      encodeURIComponent(ytId) +
+      '?controls=1&modestbranding=1&rel=0&showinfo=0';
+    return (
+      '<div class="cs-vid-container cs-vid-container--youtube">' +
+        '<div class="cs-yt-aspect" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">' +
+          '<iframe src="' +
+          embedSrc +
+          '" width="100%" height="100%" frameborder="0" allowfullscreen' +
+          ' style="position:absolute;top:0;left:0;width:100%;height:100%;"' +
+          ' title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>' +
+        '</div>' +
+        '<p class="cs-yt-watch"><a href="' +
+        watchUrl +
+        '" class="text-link" target="_blank" rel="noopener noreferrer">Open on YouTube</a></p>' +
+      '</div>'
+    );
+  }
   return (
     '<div class="cs-vid-container">' +
       '<video class="cs-vid" src="' +
@@ -2047,7 +2161,7 @@ function caseStudyVideoHtml(src) {
 function governanceCaseStudyHtml(proj) {
   var vid = caseStudyVideoHtml(proj.heroVideo);
   var mail =
-    'mailto:ran@ransong.me?subject=' + encodeURIComponent('AI governance dashboard trial');
+    'mailto:ran@ran-song.com?subject=' + encodeURIComponent('AI governance dashboard trial');
   return (
     '<article class="gov-case">' +
       '<header class="cs-header">' +
@@ -2172,7 +2286,7 @@ function playceHowWorksStepHtml(n, title, desc, imgAlt) {
 }
 
 function playceCaseStudyHtml(proj) {
-  var mail = 'mailto:ran@ransong.me?subject=' + encodeURIComponent('PLAYCE demo');
+  var mail = 'mailto:ran@ran-song.com?subject=' + encodeURIComponent('PLAYCE demo');
   var vid = playceVideoPlaceholderHtml();
   return (
     '<article class="gov-case">' +
@@ -2818,6 +2932,110 @@ function initVideoControls(container) {
     video.addEventListener('pause', function() {
       playBtn.textContent = '[ PLAY ]';
     });
+
+    initGovVideoFullscreen(wrap);
+  });
+
+  // ── Vimeo embeds ─────────────────────────────────────
+  container.querySelectorAll('.cs-vid-container--vimeo').forEach(function(wrap) {
+    if (wrap.dataset.vimeoInit) return;
+    wrap.dataset.vimeoInit = '1';
+
+    var iframe   = wrap.querySelector('.cs-vimeo-embed');
+    var playBtn  = wrap.querySelector('.vid-playpause');
+    var muteBtn  = wrap.querySelector('.vid-mute');
+    var spdBtns  = wrap.querySelectorAll('.vid-spd');
+    var volSlider = wrap.querySelector('.vid-vol-slider');
+    var seek     = wrap.querySelector('.vid-seek');
+    var timeEl   = wrap.querySelector('.vid-time');
+    if (!iframe || typeof window.Vimeo === 'undefined') return;
+
+    if (typeof window.Vimeo === 'undefined' || typeof window.Vimeo.Player === 'undefined') {
+      // Retry once Vimeo Player.js finishes loading
+      var retryId = setInterval(function() {
+        if (typeof window.Vimeo !== 'undefined' && typeof window.Vimeo.Player !== 'undefined') {
+          clearInterval(retryId);
+          delete wrap.dataset.vimeoInit;
+          initVideoControls(wrap.closest('.gov-case') || wrap.parentElement || document);
+        }
+      }, 200);
+      return;
+    }
+
+    var player = new window.Vimeo.Player(iframe);
+    var dur = 0;
+    var scrubbing = false;
+
+    function fmtV(s) { return fmtVidTime(s); }
+
+    function updateTimeDisp(cur) {
+      if (!timeEl || !dur) return;
+      timeEl.textContent = fmtV(cur) + ' / ' + fmtV(dur);
+    }
+
+    player.getDuration().then(function(d) { dur = d; updateTimeDisp(0); });
+
+    player.on('timeupdate', function(data) {
+      if (!scrubbing) {
+        if (!dur && data.duration) { dur = data.duration; }
+        updateTimeDisp(data.seconds);
+        if (seek && dur) seek.value = String(Math.round((data.seconds / dur) * 1000));
+      }
+    });
+    player.on('play',  function() { playBtn.textContent = '[ PAUSE ]'; });
+    player.on('pause', function() { playBtn.textContent = '[ PLAY ]'; });
+    player.on('ended', function() { playBtn.textContent = '[ PLAY ]'; });
+
+    playBtn.addEventListener('click', function() {
+      player.getPaused().then(function(paused) {
+        if (paused) { player.play(); } else { player.pause(); }
+      });
+    });
+
+    muteBtn.addEventListener('click', function() {
+      player.getMuted().then(function(muted) {
+        player.setMuted(!muted);
+        muteBtn.textContent = muted ? '[ MUTE ]' : '[ SOUND ]';
+        if (muted) {
+          var v = parseFloat(volSlider.value) || 0.7;
+          player.setVolume(v);
+          volSlider.value = String(v);
+        }
+      });
+    });
+
+    volSlider.addEventListener('input', function() {
+      var v = parseFloat(volSlider.value);
+      player.setVolume(v);
+      player.setMuted(v === 0);
+      muteBtn.textContent = v === 0 ? '[ MUTE ]' : '[ SOUND ]';
+    });
+
+    // start un-muted at full volume
+    player.setMuted(false);
+    player.setVolume(1);
+
+    spdBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        player.setPlaybackRate(parseFloat(btn.dataset.spd));
+        spdBtns.forEach(function(b) { b.classList.remove('vid-spd--active'); });
+        btn.classList.add('vid-spd--active');
+      });
+    });
+
+    if (seek) {
+      seek.addEventListener('pointerdown', function() { scrubbing = true; });
+      ['pointerup', 'pointercancel'].forEach(function(ev) {
+        seek.addEventListener(ev, function() { scrubbing = false; });
+      });
+      seek.addEventListener('input', function() {
+        if (dur) {
+          var t = (parseFloat(seek.value) / 1000) * dur;
+          player.setCurrentTime(t);
+          updateTimeDisp(t);
+        }
+      });
+    }
 
     initGovVideoFullscreen(wrap);
   });

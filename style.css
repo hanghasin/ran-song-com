@@ -1105,19 +1105,26 @@ html[data-theme='dark'] #panel-home {
   max-width: min(940px, 100%);
   margin-left: auto;
   margin-right: auto;
-  padding-left: clamp(24px, 4vw, 48px);
-  padding-right: clamp(24px, 4vw, 48px);
+  padding: 36px clamp(24px, 4vw, 48px) 96px;
   text-align: left;
 }
 
-.builder-detail-body .gov-case > .cs-header,
-.builder-detail-body .cs-header {
+/* Standalone case-study header (not inside .gov-case) */
+.builder-detail-body > .cs-header {
   max-width: min(940px, 100%);
   margin-left: auto;
   margin-right: auto;
-  padding-left: clamp(24px, 4vw, 48px);
-  padding-right: clamp(24px, 4vw, 48px);
-  text-align: center;
+  padding: 0 clamp(24px, 4vw, 48px);
+  text-align: left;
+}
+
+/* Governance / PLAYCE — header lives inside .gov-case; use parent padding only */
+.builder-detail-body .gov-case > .cs-header {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 28px;
+  padding: 0;
+  text-align: left;
 }
 
 .builder-detail-body .cs-body {
@@ -1126,6 +1133,16 @@ html[data-theme='dark'] #panel-home {
   margin-right: auto;
   padding-left: clamp(24px, 4vw, 48px);
   padding-right: clamp(24px, 4vw, 48px);
+  text-align: left;
+}
+
+.builder-detail-body .gov-case .gov-h2,
+.builder-detail-body .gov-case .gov-h3,
+.builder-detail-body .gov-case .gov-p,
+.builder-detail-body .gov-case .gov-pre {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: none;
   text-align: left;
 }
 
@@ -1147,10 +1164,19 @@ html[data-theme='dark'] #panel-home {
   text-align: left;
 }
 
+.builder-detail-body .cs-header-num,
+.builder-detail-body .cs-header-title,
 .builder-detail-body .cs-header-desc,
 .builder-detail-body .cs-header-tech,
 .builder-detail-body .cs-header-solo {
-  text-align: center;
+  text-align: left;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.builder-detail-body .gov-case > .cs-header .cs-header-desc,
+.builder-detail-body .gov-case > .cs-header .cs-header-tech {
+  max-width: none;
 }
 
 .builder-detail-body .cs-caption,
@@ -1412,6 +1438,34 @@ html[data-theme='dark'] #panel-home {
     0 18px 40px -28px rgba(0, 0, 0, 0.18);
 }
 
+.builder-detail-body .gov-vid-slot .cs-vid-container--youtube .cs-yt-aspect,
+.gov-vid-slot .cs-vid-container--youtube .cs-yt-aspect {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.builder-detail-body .gov-vid-slot .cs-vid-container--vimeo .cs-yt-aspect,
+.gov-vid-slot .cs-vid-container--vimeo .cs-yt-aspect {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.builder-detail-body .gov-vid-slot .cs-vid-container--youtube .cs-yt-embed,
+.gov-vid-slot .cs-vid-container--youtube .cs-yt-embed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
 .builder-detail-body .gov-vid-slot .cs-vid-container .cs-vid {
   flex: none;
   width: 100%;
@@ -1420,6 +1474,85 @@ html[data-theme='dark'] #panel-home {
   object-fit: contain;
   display: block;
   background: #111;
+}
+
+.cs-vid-container--youtube {
+  padding: 0;
+}
+
+/* ── Vimeo embed container ──────────────────────────── */
+.cs-vid-container--vimeo {
+  padding: 0;
+}
+
+.cs-vid-container--vimeo .cs-yt-aspect {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.cs-vimeo-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 130px;
+  height: 48px;
+  background: var(--surface);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.cs-vid-container--youtube .cs-yt-aspect {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.cs-vid-container--youtube .cs-yt-embed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.cs-vid-container--youtube .cs-yt-watch {
+  margin: 10px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+
+.cs-vid-container--youtube .cs-yt-watch a {
+  opacity: 1;
+}
+
+.cs-vid-container--youtube-fallback {
+  padding: 24px;
+  text-align: center;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #111;
+}
+
+.cs-yt-fallback {
+  margin: 0;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+.cs-hero--video .cs-vid-container--youtube .cs-yt-aspect {
+  background: #0b111b;
 }
 
 .gov-vid-slot .vid-bar {
@@ -1892,8 +2025,12 @@ html.gov-figure-zoom-open body {
 
 .player-wrap {
   height: calc(100vh - 40px);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 28px 40px 40px; gap: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(16px, 2vh, 22px) 40px clamp(28px, 5vh, 48px);
+  gap: clamp(32px, 4.5vh, 44px);
 }
 .player-header {
   align-self: flex-start;
@@ -2035,6 +2172,21 @@ html[data-theme='dark'] .pc-art-box svg {
   color: #A14A2A;
   opacity: 0.55; transition: opacity 0.1s, color 0.1s; z-index: 1;
 }
+
+.gfs-game-theme-btn {
+  position: absolute;
+  top: 16px;
+  right: 88px;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  opacity: 0.42;
+  cursor: pointer;
+  transition: opacity 0.1s;
+  z-index: 2;
+}
+.gfs-game-theme-btn:hover { opacity: 0.9; }
 .gfs-close:hover { opacity: 1; color: #1a1714; }
 .game-fullscreen:has(.gfs-body--memory) .gfs-close {
   color: var(--text);
@@ -3276,6 +3428,20 @@ body.playroom-ts-open #cursor2 {
   opacity: 0.45; letter-spacing: 0.04em;
 }
 
+.sud-theme-btn {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.38;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+.sud-theme-btn:hover { opacity: 0.82; }
+
 .sud-toolbar {
   display: flex; flex-wrap: wrap;
   align-items: center; justify-content: center;
@@ -3457,6 +3623,20 @@ body.playroom-ts-open #cursor2 {
   max-width: 34em;
   margin: 0 auto;
 }
+
+.mem-theme-btn {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.38;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+.mem-theme-btn:hover { opacity: 0.82; }
 
 .mem-toolbar {
   display: flex;
@@ -3736,7 +3916,10 @@ body.playroom-ts-open #cursor2 {
   .player-cell:nth-child(2n)  { border-right: none; }
   .player-cell:nth-child(n+3) { border-bottom: 1px solid var(--border); }
   .player-cell:last-child     { border-bottom: none; }
-  .player-wrap { padding: 20px; }
+  .player-wrap {
+    padding: 16px 20px 28px;
+    gap: 28px;
+  }
 }
 
 /* ── Dashboard case study standalone (dashboard-case-study.html) ── */
