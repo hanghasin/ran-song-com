@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Drift — Ran Song</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Spectral:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  background: #080806;
+  color: #f0ece4;
+  font-family: 'Space Mono', monospace;
+  overflow: hidden;
+  user-select: none;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+canvas { position: fixed; inset: 0; z-index: 1; cursor: none; }
+
+/* crosshair */
+#cH,#cV { position:fixed;z-index:9999;pointer-events:none;background:rgba(240,236,228,0.5); }
+#cH { height:1px;width:18px;transform:translate(-50%,-50%); }
+#cV { width:1px;height:18px;transform:translate(-50%,-50%); }
+#cDot { position:fixed;z-index:10000;pointer-events:none;width:3px;height:3px;border-radius:50%;background:#f0ece4;transform:translate(-50%,-50%); }
+
+.ui { position: fixed; z-index: 10; pointer-events: none; }
+
+/* top bar */
+#topBar {
+  top:0;left:0;right:0;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  border-bottom:0.5px solid rgba(240,236,228,0.07);
+  background:rgba(8,8,6,0.9);
+  backdrop-filter:blur(20px);
+}
+#logo { font-size:12px;font-weight:700;letter-spacing:0.06em; }
+#gTitle { font-family:'Spectral',serif;font-size:13px;font-style:italic;font-weight:300;color:rgba(240,236,228,0.35); }
+#topR { font-size:8px;color:rgba(240,236,228,0.2);letter-spacing:0.14em;text-transform:none;white-space:nowrap; }
+
+/* score + lives */
+#scorePanel { top:68px;right:40px;text-align:right; }
+#livesPanel { top:68px;left:40px; }
+.sl { font-size:7px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,236,228,0.18);display:block;margin-bottom:2px; }
+.sv { font-family:'Spectral',serif;font-size:34px;font-weight:300;color:#f0ece4;line-height:1;display:block;font-variant-numeric:tabular-nums; }
+
+/* bottom: target word + progress */
+#bottomBar {
+  bottom:0;left:0;right:0;
+  background:rgba(8,8,6,0.92);
+  backdrop-filter:blur(20px);
+  border-top:0.5px solid rgba(240,236,228,0.07);
+  padding:20px 40px 24px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+#wordLabel { font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(240,236,228,0.18); }
+#slots { display:flex;gap:8px;align-items:center; }
+
+#wordProg {
+  font-family:'Space Mono',monospace;font-size:7px;letter-spacing:0.16em;text-transform:uppercase;
+  color:rgba(240,236,228,0.18);margin-top:2px;
+}
+
+.slot {
+  width:32px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  border-bottom:1px solid rgba(240,236,228,0.15);
+  font-size:18px;font-weight:700;
+  color:#f0ece4;letter-spacing:0;
+  transition:border-color 0.2s,color 0.2s;
+  position:relative;
+}
+.slot.active { border-color:rgba(240,236,228,0.5); }
+.slot.filled { border-color:rgba(240,236,228,0.6); }
+.slot.wrong {
+  color:rgba(255,100,100,0.8);
+  border-color:rgba(255,100,100,0.4);
+  animation:shake 0.25s ease;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  30%{transform:translateX(-5px)}
+  70%{transform:translateX(5px)}
+}
+
+/* spell hint below word progress */
+#hint { font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(240,236,228,0.15);margin-top:4px; }
+
+/* caught word flash */
+#caughtFlash {
+  position:fixed;z-index:15;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Spectral',serif;
+  font-size:clamp(40px,6vw,72px);
+  font-weight:300;font-style:italic;
+  color:#f0ece4;letter-spacing:-0.02em;
+  pointer-events:none;opacity:0;
+  transition:opacity 0.15s;
+}
+
+/* score popup */
+#scorePopup {
+  position:fixed;z-index:15;
+  pointer-events:none;opacity:0;
+  font-family:'Spectral',serif;
+  font-size:22px;font-weight:300;
+  color:rgba(240,236,228,0.6);
+  transition:opacity 0.2s,transform 0.4s;
+}
+
+/* screens */
+.screen {
+  position:fixed;inset:0;z-index:20;
+  background:rgba(8,8,6,0.96);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+  transition:opacity 0.35s;
+}
+.screen.hidden { opacity:0;pointer-events:none; }
+.screen h1 {
+  font-family:'Spectral',serif;
+  font-size:clamp(38px,6vw,68px);
+  font-weight:300;font-style:italic;
+  color:#f0ece4;letter-spacing:-0.02em;line-height:1;
+}
+.screen p {
+  font-size:9px;letter-spacing:0.14em;text-transform:uppercase;
+  color:rgba(240,236,228,0.25);line-height:2.2;text-align:center;
+}
+.sbtn {
+  font-family:'Space Mono',monospace;
+  font-size:9px;letter-spacing:0.16em;text-transform:uppercase;
+  color:#f0ece4;background:transparent;
+  border:0.5px solid rgba(240,236,228,0.2);
+  padding:12px 32px;cursor:pointer;margin-top:8px;
+  transition:border-color 0.2s;pointer-events:all;
+}
+.sbtn:hover { border-color:#f0ece4; }
+#finalNum {
+  font-family:'Spectral',serif;
+  font-size:72px;font-weight:300;color:#f0ece4;line-height:1;font-variant-numeric:tabular-nums;
+}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div id="cH"></div><div id="cV"></div><div id="cDot"></div>
+
+<div class="ui" id="topBar">
+  <span id="logo">Ran Song</span>
+  <span id="gTitle">Word Drift</span>
+  <span id="topR"></span>
+</div>
+
+<div class="ui" id="scorePanel">
+  <span class="sl">Score</span>
+  <span class="sv" id="scoreVal">000</span>
+</div>
+<div class="ui" id="livesPanel">
+  <span class="sl">Lives</span>
+  <span class="sv" id="livesVal">3 / 3</span>
+</div>
+
+<div id="bottomBar">
+  <span id="wordLabel">click the letters in order</span>
+  <div id="slots"></div>
+  <span id="wordProg"></span>
+  <span id="hint">find · click · spell</span>
+</div>
+
+<div id="caughtFlash"></div>
+<div id="scorePopup"></div>
+
+<!-- Start -->
+<div class="screen" id="startScreen">
+  <h1>Word Drift</h1>
+  <p>
+    Letters scatter across the void.<br>
+    Click them in order to spell the word.<br>
+    Chaos thins while order rises.
+  </p>
+  <button class="sbtn" id="startBtn">Begin →</button>
+</div>
+
+<!-- Level done -->
+<div class="screen hidden" id="lvlScreen">
+  <h1 id="lvlTitle">Level complete.</h1>
+  <p id="lvlSub"></p>
+  <button class="sbtn" id="nextBtn">Continue →</button>
+</div>
+
+<!-- Game over -->
+<div class="screen hidden" id="overScreen">
+  <h1>The experiment ends.</h1>
+  <div id="finalNum">000</div>
+  <p>final score</p>
+  <button class="sbtn" id="restartBtn">Begin again →</button>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────
+const LIVES_CAP = 3;
+
+const LEVELS = [
+  {
+    words: ['chaos','order','drift','flux','form','void','still','rise','fall','change','cloud','shift'],
+    speed: 0.55, decoys: 6, toCatch: 5,
+    desc: 'Letters move slowly. Find your bearings.'
+  },
+  {
+    words: ['dissolve','emerge','pattern','signal','gather','scatter','system','filter','clarity','silence'],
+    speed: 0.85, decoys: 9, toCatch: 5,
+    desc: 'The void grows restless.'
+  },
+  {
+    words: ['becoming','curiosity','structure','intention','permanence','uncertainty','experiment'],
+    speed: 1.2, decoys: 12, toCatch: 4,
+    desc: 'Chaos at full force.'
+  },
+];
+
+// ── STATE ───────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+let W, H;
+function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+let level = 0, score = 0, lives = LIVES_CAP, caught = 0;
+let gameActive = false;
+let particles  = [];
+let targetWord = '';
+let nextIdx    = 0; // which letter to click next
+let wrongCooldown = 0;
+
+// cursor
+const cH = document.getElementById('cH');
+const cV = document.getElementById('cV');
+const cD = document.getElementById('cDot');
+let mx = W/2, my = H/2;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cH.style.left=mx+'px'; cH.style.top=my+'px';
+  cV.style.left=mx+'px'; cV.style.top=my+'px';
+  cD.style.left=mx+'px'; cD.style.top=my+'px';
+});
+
+function updateTopR() {
+  const cfg = LEVELS[level];
+  document.getElementById('topR').textContent =
+    `Level ${level + 1} · ${cfg.toCatch} words to clear`;
+}
+
+function updateWordProg() {
+  const cfg = LEVELS[level];
+  const cur = caught >= cfg.toCatch ? cfg.toCatch : caught + 1;
+  document.getElementById('wordProg').textContent =
+    `Word ${cur} / ${cfg.toCatch}`;
+}
+
+// ── PARTICLE ────────────────────────────────────────
+class Letter {
+  constructor(ch, isTarget, wordIdx) {
+    this.ch       = ch;
+    this.isTarget = isTarget;
+    this.wordIdx  = wordIdx; // index in target word, -1 for decoy
+    this.reset();
+    this.opacity  = 0;
+    this.fadeIn   = true;
+  }
+
+  reset() {
+    // start near edges, drift inward
+    const side = Math.floor(Math.random()*4);
+    if (side===0) { this.x=Math.random()*W; this.y=-30; }
+    else if (side===1) { this.x=W+30; this.y=Math.random()*H; }
+    else if (side===2) { this.x=Math.random()*W; this.y=H+30; }
+    else { this.x=-30; this.y=Math.random()*H; }
+
+    this.x = 80 + Math.random()*(W-160);
+    this.y = 80 + Math.random()*(H-200);
+
+    this.vx     = (Math.random()-0.5)*1.8;
+    this.vy     = (Math.random()-0.5)*1.8;
+    this.angle  = Math.random()*Math.PI*2;
+    this.av     = (Math.random()-0.5)*0.018;
+    this.phase  = Math.random()*Math.PI*2;
+    this.phaseS = 0.3 + Math.random()*0.5;
+    this.size   = this.isTarget ? 16+Math.random()*6 : 12+Math.random()*5;
+
+    // target letters: brighter; decoys: dim
+    this.targetOpacity = this.isTarget ? 0.55+Math.random()*0.35 : 0.1+Math.random()*0.1;
+    this.clicked  = false;
+    this.wrongT   = 0;
+    this.hovered  = false;
+    this.catchAnim= 0; // >0 = flying to slot
+    this.catchTX  = 0;
+    this.catchTY  = 0;
+  }
+
+  get radius() { return this.size * 1.1; }
+
+  containsMouse() {
+    const dx=mx-this.x, dy=my-this.y;
+    return Math.sqrt(dx*dx+dy*dy) < this.radius + 8;
+  }
+
+  update(dt, spd) {
+    if (this.clicked) return;
+
+    if (this.fadeIn) {
+      this.opacity += dt * 0.002;
+      if (this.opacity >= this.targetOpacity) {
+        this.opacity = this.targetOpacity;
+        this.fadeIn = false;
+      }
+    }
+
+    // organic Van Gogh drift
+    const t = Date.now()*0.001;
+    this.vx += Math.sin(t*this.phaseS + this.phase)*0.035*spd;
+    this.vy += Math.cos(t*this.phaseS*0.7 + this.phase)*0.028*spd;
+    this.vx *= 0.982;
+    this.vy *= 0.982;
+
+    const s = Math.sqrt(this.vx*this.vx+this.vy*this.vy);
+    const ms = 2.2*spd;
+    if (s > ms) { this.vx*=ms/s; this.vy*=ms/s; }
+
+    this.x += this.vx*spd;
+    this.y += this.vy*spd;
+    this.angle += this.av;
+
+    // bounce
+    const pad=60, top=72;
+    if (this.x<pad)   { this.x=pad;   this.vx=Math.abs(this.vx)*0.8; }
+    if (this.x>W-pad) { this.x=W-pad; this.vx=-Math.abs(this.vx)*0.8; }
+    if (this.y<top)   { this.y=top;   this.vy=Math.abs(this.vy)*0.8; }
+    if (this.y>H-120) { this.y=H-120; this.vy=-Math.abs(this.vy)*0.8; }
+
+    // wrong flash
+    if (this.wrongT > 0) this.wrongT -= dt;
+
+    // hover glow
+    this.hovered = this.containsMouse();
+  }
+
+  draw(ctx) {
+    if (this.clicked) return;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+
+    let alpha = this.opacity;
+    let col   = '#f0ece4';
+    let weight = this.isTarget ? '700' : '400';
+
+    // next-to-click: highlight
+    if (this.isTarget && this.wordIdx === nextIdx) {
+      alpha = Math.min(1, alpha + 0.3 + Math.sin(Date.now()*0.004)*0.15);
+    }
+
+    if (this.wrongT > 0) {
+      col   = 'rgba(255,110,110,0.9)';
+      alpha = 0.9;
+    } else if (this.hovered && this.isTarget && this.wordIdx === nextIdx) {
+      alpha = 1;
+      // draw subtle glow
+      ctx.shadowColor = 'rgba(240,236,228,0.3)';
+      ctx.shadowBlur  = 12;
+    }
+
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.font = `${weight} ${this.size}px 'Space Mono', monospace`;
+    ctx.fillStyle = col;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.ch.toUpperCase(), 0, 0);
+    ctx.restore();
+  }
+}
+
+// ── SPAWN ───────────────────────────────────────────
+function pickWord() {
+  const cfg  = LEVELS[level];
+  const used = new Set();
+  let w;
+  // avoid repeating
+  do { w = cfg.words[Math.floor(Math.random()*cfg.words.length)]; } while(used.has(w) && used.size < cfg.words.length);
+  used.add(w);
+  return w;
+}
+
+function spawnRound() {
+  particles = [];
+  nextIdx   = 0;
+
+  targetWord = pickWord();
+  const cfg  = LEVELS[level];
+
+  // target letters — one per letter in word
+  targetWord.split('').forEach((ch, i) => {
+    particles.push(new Letter(ch, true, i));
+  });
+
+  // decoys — letters NOT in the word
+  const alpha   = 'abcdefghijklmnopqrstuvwxyz';
+  const wordSet = new Set(targetWord.split(''));
+  const pool    = alpha.split('').filter(c => !wordSet.has(c));
+  for (let i=0; i<cfg.decoys; i++) {
+    const ch = pool[Math.floor(Math.random()*pool.length)];
+    particles.push(new Letter(ch, false, -1));
+  }
+
+  // stagger fade-in
+  particles.forEach((p,i) => {
+    p.opacity = 0; p.fadeIn = true;
+    setTimeout(() => {}, i*40);
+  });
+
+  buildSlots();
+  updateTopR();
+  updateWordProg();
+  updateHint();
+}
+
+// ── SLOTS ───────────────────────────────────────────
+function buildSlots() {
+  const el = document.getElementById('slots');
+  el.innerHTML = '';
+  targetWord.split('').forEach((_, i) => {
+    const s = document.createElement('div');
+    s.className = 'slot' + (i===0 ? ' active' : '');
+    s.id = 'slot'+i;
+    el.appendChild(s);
+  });
+}
+
+function fillSlot(idx, ch) {
+  const s = document.getElementById('slot'+idx);
+  if (!s) return;
+  s.textContent = ch.toUpperCase();
+  s.classList.add('filled');
+  s.classList.remove('active');
+  // mark next active
+  const next = document.getElementById('slot'+(idx+1));
+  if (next) next.classList.add('active');
+}
+
+function wrongSlot(idx) {
+  const s = document.getElementById('slot'+(idx>0?idx-1:0));
+  if (!s) return;
+  s.classList.add('wrong');
+  setTimeout(() => s.classList.remove('wrong'), 300);
+}
+
+function updateHint() {
+  document.getElementById('hint').textContent =
+    `${nextIdx}/${targetWord.length} · click the glowing letter`;
+}
+
+// ── CLICK ───────────────────────────────────────────
+canvas.addEventListener('click', () => {
+  if (!gameActive || wrongCooldown > 0) return;
+
+  // find particle under cursor
+  // check closest target first
+  const candidates = particles.filter(p => !p.clicked && p.containsMouse());
+  if (candidates.length === 0) return;
+
+  // pick top (by render order, last drawn = top)
+  const hit = candidates[candidates.length-1];
+
+  if (hit.isTarget && hit.wordIdx === nextIdx) {
+    // correct!
+    hit.clicked = true;
+    fillSlot(nextIdx, hit.ch);
+    showScorePopup(hit.x, hit.y, '+'+( (level+1)*5 ));
+    score += (level+1)*5;
+    nextIdx++;
+    updateScore();
+    updateHint();
+
+    if (nextIdx >= targetWord.length) {
+      wordComplete();
+    }
+  } else {
+    // wrong
+    hit.wrongT = 600;
+    wrongCooldown = 500;
+    wrongSlot(nextIdx);
+    flashScreen();
+    loseLife();
+  }
+});
+
+// ── WORD COMPLETE ───────────────────────────────────
+function wordComplete() {
+  const bonus = 20*(level+1);
+  score += bonus;
+  updateScore();
+  caught++;
+
+  // show caught word
+  const el = document.getElementById('caughtFlash');
+  updateWordProg();
+  el.textContent = targetWord;
+  el.style.opacity = '1';
+  showScorePopup(W/2, H/2-60, '+'+bonus+' bonus');
+
+  setTimeout(() => {
+    el.style.opacity = '0';
+    if (caught >= LEVELS[level].toCatch) {
+      levelDone();
+    } else {
+      spawnRound();
+    }
+  }, 1000);
+}
+
+// ── LIVES ───────────────────────────────────────────
+function loseLife() {
+  lives = Math.max(0, lives-1);
+  updateLives();
+  if (lives <= 0) {
+    setTimeout(gameOver, 400);
+  }
+}
+
+function updateLives() {
+  document.getElementById('livesVal').textContent = `${lives} / ${LIVES_CAP}`;
+}
+
+function updateScore() {
+  document.getElementById('scoreVal').textContent = String(score).padStart(3,'0');
+}
+
+function flashScreen() {
+  canvas.style.filter = 'brightness(1.3)';
+  setTimeout(() => { canvas.style.filter = ''; }, 100);
+}
+
+// ── SCORE POPUP ─────────────────────────────────────
+function showScorePopup(x, y, text) {
+  const el = document.getElementById('scorePopup');
+  el.textContent = text;
+  el.style.left  = x+'px';
+  el.style.top   = y+'px';
+  el.style.opacity = '1';
+  el.style.transform = 'translateY(0px)';
+  setTimeout(() => {
+    el.style.opacity  = '0';
+    el.style.transform = 'translateY(-24px)';
+  }, 600);
+}
+
+// ── COOLDOWN ────────────────────────────────────────
+let lastT = 0;
+function gameLoop(ts) {
+  const dt = Math.min(ts-lastT, 32);
+  lastT = ts;
+  if (wrongCooldown > 0) wrongCooldown -= dt;
+
+  ctx.clearRect(0,0,W,H);
+
+  if (gameActive) {
+    const spd = LEVELS[level].speed;
+    // draw decoys first (behind), then targets
+    particles.filter(p=>!p.isTarget).forEach(p => { p.update(dt,spd); p.draw(ctx); });
+    particles.filter(p=> p.isTarget).forEach(p => { p.update(dt,spd); p.draw(ctx); });
+
+    // draw subtle ring around next target letter
+    const nextP = particles.find(p => p.isTarget && p.wordIdx===nextIdx && !p.clicked);
+    if (nextP) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(nextP.x, nextP.y, nextP.radius+14, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(240,236,228,${0.08+Math.sin(Date.now()*0.004)*0.04})`;
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([3,5]);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+
+// ── LEVEL / GAME OVER ───────────────────────────────
+function levelDone() {
+  gameActive = false;
+  const isLast = level >= LEVELS.length-1;
+  document.getElementById('lvlTitle').textContent = isLast ? 'Complete.' : `Level ${level+1} done.`;
+  document.getElementById('lvlSub').textContent   = `${caught} words · ${score} points`;
+  document.getElementById('nextBtn').textContent  = isLast ? 'Begin again →' : 'Next level →';
+  document.getElementById('lvlScreen').classList.remove('hidden');
+}
+
+function gameOver() {
+  gameActive = false;
+  document.getElementById('finalNum').textContent = String(score).padStart(3,'0');
+  document.getElementById('overScreen').classList.remove('hidden');
+}
+
+function startGame(fromLevel) {
+  level  = fromLevel||0;
+  score  = 0; lives = LIVES_CAP; caught = 0;
+  updateScore(); updateLives(); updateTopR(); updateWordProg();
+  gameActive = true;
+  spawnRound();
+}
+
+// ── BUTTONS ─────────────────────────────────────────
+document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('startScreen').classList.add('hidden');
+  startGame(0);
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  document.getElementById('lvlScreen').classList.add('hidden');
+  const isLast = level >= LEVELS.length-1;
+  if (isLast) { score=0; level=0; } else level++;
+  lives=LIVES_CAP; caught=0; updateLives(); updateScore();
+  gameActive=true; spawnRound();
+});
+document.getElementById('restartBtn').addEventListener('click', () => {
+  document.getElementById('overScreen').classList.add('hidden');
+  startGame(0);
+});
+</script>
+</body>
+</html>

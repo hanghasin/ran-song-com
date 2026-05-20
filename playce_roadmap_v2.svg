@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="360" viewBox="0 0 800 360" role="img">
+  <title>PLAYCE product lifecycle roadmap</title>
+  <rect width="800" height="360" fill="#fff"/>
+  <rect x="0.5" y="0.5" width="799" height="359" fill="none" stroke="rgba(26,23,20,0.12)"/>
+  <text x="400" y="184" dominant-baseline="middle" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="11" fill="rgba(26,23,20,0.28)">
+    Replace with playce_roadmap_v2 artwork
+  </text>
+</svg>

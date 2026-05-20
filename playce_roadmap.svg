@@ -1,0 +1,78 @@
+<svg width="760" height="580" viewBox="0 0 760 580" role="img" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Mono', monospace">
+  <title>PLAYCE — Product Roadmap</title>
+
+  <!-- Spine -->
+  <line x1="80" y1="40" x2="80" y2="510" stroke="#ccc" stroke-width="0.5"/>
+
+  <!-- Phase 1 — coral/red -->
+  <circle cx="80" cy="68" r="6" fill="#b03a2e"/>
+  <line x1="86" y1="68" x2="120" y2="68" stroke="#b03a2e" stroke-width="0.5"/>
+  <rect x="120" y="46" width="620" height="44" rx="0" fill="#b03a2e" stroke="#b03a2e" stroke-width="0.5"/>
+  <text font-size="13" font-weight="600" x="136" y="64" dominant-baseline="central" fill="#ffffff">Phase 1 — Core Hardening</text>
+  <text font-size="10" x="136" y="80" dominant-baseline="central" fill="rgba(255,255,255,0.75)">Shipped</text>
+
+  <!-- Phase 1 bullets -->
+  <circle cx="132" cy="108" r="2" fill="#b03a2e"/>
+  <text font-size="10" x="144" y="108" dominant-baseline="central" fill="#555">Zod runtime structural validation across all API routes</text>
+
+  <circle cx="132" cy="124" r="2" fill="#b03a2e"/>
+  <text font-size="10" x="144" y="124" dominant-baseline="central" fill="#555">Smart deterministic dynamic image seeding (?sig=index)</text>
+
+  <circle cx="132" cy="140" r="2" fill="#b03a2e"/>
+  <text font-size="10" x="144" y="140" dominant-baseline="central" fill="#555">Styling architecture migrated to Tailwind CSS v4 CSS-first specification</text>
+
+  <circle cx="132" cy="156" r="2" fill="#b03a2e"/>
+  <text font-size="10" x="144" y="156" dominant-baseline="central" fill="#555">Context prompt compression &amp; automated model fallback loops</text>
+
+  <!-- Phase 2 — amber -->
+  <circle cx="80" cy="196" r="6" fill="#c67c2e"/>
+  <line x1="86" y1="196" x2="120" y2="196" stroke="#c67c2e" stroke-width="0.5"/>
+  <rect x="120" y="174" width="620" height="44" rx="0" fill="#c67c2e" stroke="#c67c2e" stroke-width="0.5"/>
+  <text font-size="13" font-weight="600" x="136" y="192" dominant-baseline="central" fill="#ffffff">Phase 2 — Ecosystem Integration</text>
+  <text font-size="10" x="136" y="208" dominant-baseline="central" fill="rgba(255,255,255,0.75)">Next</text>
+
+  <!-- Phase 2 bullets -->
+  <circle cx="132" cy="236" r="2" fill="#c67c2e"/>
+  <text font-size="10" x="144" y="236" dominant-baseline="central" fill="#555">Model benchmarking &amp; swappable inference layer</text>
+
+  <circle cx="132" cy="252" r="2" fill="#c67c2e"/>
+  <text font-size="10" x="144" y="252" dominant-baseline="central" fill="#555">Google Places API for verified destination photos</text>
+
+  <circle cx="132" cy="268" r="2" fill="#c67c2e"/>
+  <text font-size="10" x="144" y="268" dominant-baseline="central" fill="#555">Booking.com / Airbnb affiliate APIs for real-time price comparison</text>
+
+  <circle cx="132" cy="284" r="2" fill="#c67c2e"/>
+  <text font-size="10" x="144" y="284" dominant-baseline="central" fill="#555">One-click PDF / Apple Wallet itinerary export</text>
+
+  <!-- Phase 3 — purple -->
+  <circle cx="80" cy="324" r="6" fill="#4a3f8a"/>
+  <line x1="86" y1="324" x2="120" y2="324" stroke="#4a3f8a" stroke-width="0.5"/>
+  <rect x="120" y="302" width="620" height="44" rx="0" fill="#4a3f8a" stroke="#4a3f8a" stroke-width="0.5"/>
+  <text font-size="13" font-weight="600" x="136" y="320" dominant-baseline="central" fill="#ffffff">Phase 3 — Predictive Engine</text>
+  <text font-size="10" x="136" y="336" dominant-baseline="central" fill="rgba(255,255,255,0.75)">Later</text>
+
+  <!-- Phase 3 bullets -->
+  <circle cx="132" cy="364" r="2" fill="#4a3f8a"/>
+  <text font-size="10" x="144" y="364" dominant-baseline="central" fill="#555">Live weather-to-risk real-time adjustments (wave height, wind, snow conditions)</text>
+
+  <circle cx="132" cy="380" r="2" fill="#4a3f8a"/>
+  <text font-size="10" x="144" y="380" dominant-baseline="central" fill="#555">Native checkout for equipment rentals and local shuttle passes</text>
+
+  <circle cx="132" cy="396" r="2" fill="#4a3f8a"/>
+  <text font-size="10" x="144" y="396" dominant-baseline="central" fill="#555">Predictive difficulty matching based on user historical activity logs</text>
+
+  <!-- Legend -->
+  <line x1="80" y1="434" x2="740" y2="434" stroke="#ddd" stroke-width="0.5"/>
+
+  <circle cx="96" cy="452" r="5" fill="#b03a2e"/>
+  <text font-size="10" x="108" y="452" dominant-baseline="central" fill="#888">Shipped</text>
+
+  <circle cx="200" cy="452" r="5" fill="#c67c2e"/>
+  <text font-size="10" x="212" y="452" dominant-baseline="central" fill="#888">Next</text>
+
+  <circle cx="284" cy="452" r="5" fill="#4a3f8a"/>
+  <text font-size="10" x="296" y="452" dominant-baseline="central" fill="#888">Later</text>
+
+  <text font-size="10" x="740" y="452" text-anchor="end" dominant-baseline="central" fill="#aaa">PLAYCE · Product Lifecycle</text>
+
+</svg>
