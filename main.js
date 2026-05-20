@@ -25,6 +25,7 @@ var HOME_HERO_PARTICLE_REBUILD = null;
 /** Stop / resume the home canvas loop (avoids ghost layer when another panel is active). */
 var HOME_HERO_STOP_DRAW = null;
 var HOME_HERO_RESUME_DRAW = null;
+var HOME_NAV_CANCEL_REVEAL = null;
 
 function readCssVar(name, fallback) {
   try {
@@ -552,13 +553,18 @@ function sudokuFullscreenMount(host) {
 
   host.className = 'gfs-body gfs-body--scroll gfs-body--sudoku';
   var sudIsDark = document.documentElement.dataset.theme !== 'light';
-  host.setAttribute('data-theme', sudIsDark ? 'dark' : 'light');
+  var sudFs = document.getElementById('game-fullscreen');
+  function applySudTheme() {
+    var theme = sudIsDark ? 'dark' : 'light';
+    host.setAttribute('data-theme', theme);
+    if (sudFs) sudFs.setAttribute('data-game-theme', theme);
+  }
+  applySudTheme();
   var sudThemeBtn = document.createElement('button');
   sudThemeBtn.type = 'button';
   sudThemeBtn.className = 'gfs-game-theme-btn';
   sudThemeBtn.id = 'sud-theme-toggle';
   sudThemeBtn.textContent = sudIsDark ? '[ DAY ]' : '[ NIGHT ]';
-  var sudFs = document.getElementById('game-fullscreen');
   sudFs.appendChild(sudThemeBtn);
   host.innerHTML =
     '<header class="sud-head">' +
@@ -687,13 +693,14 @@ function sudokuFullscreenMount(host) {
 
   sudThemeBtn.addEventListener('click', function() {
     sudIsDark = !sudIsDark;
-    host.setAttribute('data-theme', sudIsDark ? 'dark' : 'light');
+    applySudTheme();
     sudThemeBtn.textContent = sudIsDark ? '[ DAY ]' : '[ NIGHT ]';
   });
 
   ranGameFullscreenClosePrep();
   ranFullscreenCleanup = function() {
     if (sudThemeBtn.parentNode) sudThemeBtn.parentNode.removeChild(sudThemeBtn);
+    if (sudFs) sudFs.removeAttribute('data-game-theme');
   };
   ranGameFsEsc = function(e) {
     if (e.key === 'Escape')
@@ -759,13 +766,18 @@ function memoryFullscreenMount(host) {
 
   var memIsDark = document.documentElement.dataset.theme !== 'light';
   host.className = 'gfs-body gfs-body--memory';
-  host.setAttribute('data-theme', memIsDark ? 'dark' : 'light');
+  var memFs = document.getElementById('game-fullscreen');
+  function applyMemTheme() {
+    var theme = memIsDark ? 'dark' : 'light';
+    host.setAttribute('data-theme', theme);
+    if (memFs) memFs.setAttribute('data-game-theme', theme);
+  }
+  applyMemTheme();
   var memThemeBtn = document.createElement('button');
   memThemeBtn.type = 'button';
   memThemeBtn.className = 'gfs-game-theme-btn';
   memThemeBtn.id = 'mem-theme-toggle';
   memThemeBtn.textContent = memIsDark ? '[ DAY ]' : '[ NIGHT ]';
-  var memFs = document.getElementById('game-fullscreen');
   memFs.appendChild(memThemeBtn);
   host.innerHTML =
     '<header class="mem-head">' +
@@ -984,13 +996,14 @@ function memoryFullscreenMount(host) {
 
   memThemeBtn.addEventListener('click', function() {
     memIsDark = !memIsDark;
-    host.setAttribute('data-theme', memIsDark ? 'dark' : 'light');
+    applyMemTheme();
     memThemeBtn.textContent = memIsDark ? '[ DAY ]' : '[ NIGHT ]';
   });
 
   ranFullscreenCleanup = function() {
     stopMemoryTimers();
     if (memThemeBtn.parentNode) memThemeBtn.parentNode.removeChild(memThemeBtn);
+    if (memFs) memFs.removeAttribute('data-game-theme');
   };
   ranGameFsEsc = function(e) {
     if (e.key === 'Escape')
@@ -1020,6 +1033,11 @@ function initTextParticles() {
   var t = 0;
   var grainImg = new Image();
   var grainReady = false;
+  var ranGlyphImg = new Image();
+  var songGlyphImg = new Image();
+  var becomingGlyphImg = new Image();
+  var glyphsReady = false;
+  var becomingGlyphReady = false;
 
   var LINE1 = 'Becoming oneself';
   var LINE2 = 'is a long experiment.';
@@ -1033,6 +1051,11 @@ function initTextParticles() {
   var HOME_NAV_RESERVE = 56;
   var HOME_NAV_MENU_LINE_PX = 13;
   var HOME_NAV_MENU_LINE_GAP = 2;
+  var HOME_NAV_REVEAL_FALLBACK_MS = 3200;
+  var HOME_NAV_MOVE_PX = 32;
+  var navRevealTimer = null;
+  var navRevealDone = false;
+  var navRevealAnchor = null;
   var quoteLineLead = 14;
   var SAMPLE = 3;
 
@@ -1073,6 +1096,191 @@ function initTextParticles() {
     if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') HOME_HERO_PARTICLE_REBUILD();
   };
   grainImg.src = 'textures/home-grain-even.png';
+
+  function parseInkRgb(ink) {
+    if (!ink || ink[0] !== '#') return [0, 0, 0];
+    var h = ink.slice(1);
+    if (h.length === 3) {
+      return [
+        parseInt(h[0] + h[0], 16),
+        parseInt(h[1] + h[1], 16),
+        parseInt(h[2] + h[2], 16),
+      ];
+    }
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16),
+    ];
+  }
+
+  var glyphBoundsCache = {};
+  var GLYPH_ASSET_V = '20260520c';
+
+  function clearGlyphBoundsCache() {
+    glyphBoundsCache = {};
+  }
+
+  function glyphInkBounds(img) {
+    var key = (img.src || 'glyph') + '|' + GLYPH_ASSET_V;
+    if (glyphBoundsCache[key]) return glyphBoundsCache[key];
+    var w = img.naturalWidth;
+    var h = img.naturalHeight;
+    var tc = document.createElement('canvas');
+    tc.width = w;
+    tc.height = h;
+    var tctx = tc.getContext('2d');
+    tctx.drawImage(img, 0, 0);
+    var data = tctx.getImageData(0, 0, w, h).data;
+    var minX = w;
+    var minY = h;
+    var maxX = 0;
+    var maxY = 0;
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        var ii = (y * w + x) * 4;
+        var lum = (data[ii] + data[ii + 1] + data[ii + 2]) / 765;
+        if (lum < 0.42) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    var bounds;
+    if (minX > maxX) {
+      bounds = { sx: 0, sy: 0, sw: w, sh: h, inkAspect: w / h };
+    } else {
+      var trim = 3;
+      minX = Math.max(0, minX - trim);
+      minY = Math.max(0, minY - trim);
+      maxX = Math.min(w - 1, maxX + trim);
+      maxY = Math.min(h - 1, maxY + trim);
+      var sw = maxX - minX + 1;
+      var sh = maxY - minY + 1;
+      bounds = { sx: minX, sy: minY, sw: sw, sh: sh, inkAspect: sw / sh };
+    }
+    glyphBoundsCache[key] = bounds;
+    return bounds;
+  }
+
+  function blitGlyphInk(destCtx, img, destX, destY, destW, destH, ink, bounds) {
+    var rgb = parseInkRgb(ink);
+    var b = bounds || glyphInkBounds(img);
+    var tc = document.createElement('canvas');
+    tc.width = destW;
+    tc.height = destH;
+    var tctx = tc.getContext('2d');
+    tctx.imageSmoothingEnabled = false;
+    tctx.drawImage(img, b.sx, b.sy, b.sw, b.sh, 0, 0, destW, destH);
+    var src = tctx.getImageData(0, 0, destW, destH).data;
+    var out = destCtx.createImageData(destW, destH);
+    for (var i = 0; i < src.length; i += 4) {
+      var lum = (src[i] + src[i + 1] + src[i + 2]) / 765;
+      if (lum < 0.42) {
+        out.data[i] = rgb[0];
+        out.data[i + 1] = rgb[1];
+        out.data[i + 2] = rgb[2];
+        out.data[i + 3] = 255;
+      }
+    }
+    destCtx.putImageData(out, destX, destY);
+  }
+
+  function layoutIntroGlyphs(ranImg, songImg, maxW, maxH, padTop) {
+    var ranB = glyphInkBounds(ranImg);
+    var songB = glyphInkBounds(songImg);
+    var ranH = Math.round(maxH * 0.48);
+    var ranW = Math.round(ranH * ranB.inkAspect);
+    var songH = Math.round(maxH * 0.54);
+    var songW = Math.round(songH * songB.inkAspect);
+    var gap = Math.round(Math.max(ranH, songH) * INTRO_LINE_GAP_RATIO);
+    var maxRanW = Math.round(maxW * 0.88);
+    var maxSongW = Math.round(maxW * 0.92);
+    if (ranW > maxRanW) {
+      var ranScale = maxRanW / ranW;
+      ranW = maxRanW;
+      ranH = Math.round(ranH * ranScale);
+    }
+    if (songW > maxSongW) {
+      var songScale = maxSongW / songW;
+      songW = maxSongW;
+      songH = Math.round(songH * songScale);
+    }
+    var blockH = ranH + gap + songH;
+    if (blockH > maxH) {
+      var s = maxH / blockH;
+      ranW = Math.round(ranW * s);
+      ranH = Math.round(ranH * s);
+      songW = Math.round(songW * s);
+      songH = Math.round(songH * s);
+      gap = Math.round(gap * s);
+    }
+    return {
+      ranW: ranW,
+      ranH: ranH,
+      songW: songW,
+      songH: songH,
+      gap: gap,
+      blockH: ranH + gap + songH,
+      ranB: ranB,
+      songB: songB,
+    };
+  }
+
+  function layoutQuoteGlyph(img, maxW, maxH, viewH, padTop) {
+    var b = glyphInkBounds(img);
+    var glyphH = Math.round(maxH * 0.92);
+    var targetW = Math.round(glyphH * b.inkAspect);
+    if (targetW > Math.round(maxW * 0.98)) {
+      targetW = Math.round(maxW * 0.98);
+      glyphH = Math.round(targetW / b.inkAspect);
+    }
+    if (glyphH > maxH) {
+      glyphH = maxH;
+      targetW = Math.round(glyphH * b.inkAspect);
+    }
+    var navReserve = HOME_NAV_RESERVE + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
+    var top = Math.round((viewH - glyphH - navReserve) * 0.5);
+    if (top < padTop) top = padTop;
+    return { w: targetW, h: glyphH, top: top, b: b };
+  }
+
+  function syncGlyphsReady() {
+    var introOk =
+      ranGlyphImg.complete &&
+      ranGlyphImg.naturalWidth > 0 &&
+      songGlyphImg.complete &&
+      songGlyphImg.naturalWidth > 0;
+    var quoteOk =
+      becomingGlyphImg.complete && becomingGlyphImg.naturalWidth > 0;
+    var changed = false;
+    if (introOk && !glyphsReady) {
+      glyphsReady = true;
+      changed = true;
+    }
+    if (quoteOk && !becomingGlyphReady) {
+      becomingGlyphReady = true;
+      changed = true;
+    }
+    if (changed) {
+      clearGlyphBoundsCache();
+      if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') {
+        HOME_HERO_PARTICLE_REBUILD();
+      }
+    }
+    return introOk;
+  }
+
+  ranGlyphImg.onload = syncGlyphsReady;
+  songGlyphImg.onload = syncGlyphsReady;
+  becomingGlyphImg.onload = syncGlyphsReady;
+  clearGlyphBoundsCache();
+  ranGlyphImg.src = 'photos/home-ran-glyph.png?v=' + GLYPH_ASSET_V;
+  songGlyphImg.src = 'photos/home-song-glyph.png?v=' + GLYPH_ASSET_V;
+  becomingGlyphImg.src = 'photos/home-becoming-glyph.png?v=' + GLYPH_ASSET_V;
+  syncGlyphsReady();
 
   function isHomeDarkTheme() {
     return document.documentElement.dataset.theme === 'dark';
@@ -1123,14 +1331,71 @@ function initTextParticles() {
     return null;
   }
 
+  function revealHomeNav(mode) {
+    if (navRevealDone) return;
+    navRevealDone = true;
+    if (navRevealTimer) {
+      clearTimeout(navRevealTimer);
+      navRevealTimer = null;
+    }
+    var ph = document.getElementById('panel-home');
+    if (!ph || !ph.classList.contains('panel--active')) return;
+    ph.setAttribute('data-home-nav-reveal-mode', mode || 'linger');
+    ph.classList.add('home-nav-reveal');
+  }
+
+  function tryRevealHomeNav(mx, my, mode) {
+    if (navRevealDone || HOME_HERO_PHASE !== 'intro') return;
+    if (hitIntroZone(mx, my)) {
+      revealHomeNav('explore');
+      return;
+    }
+    if (my > H * 0.58) {
+      revealHomeNav('approach');
+      return;
+    }
+    if (navRevealAnchor == null) {
+      navRevealAnchor = { x: mx, y: my };
+      return;
+    }
+    var dx = mx - navRevealAnchor.x;
+    var dy = my - navRevealAnchor.y;
+    if (dx * dx + dy * dy >= HOME_NAV_MOVE_PX * HOME_NAV_MOVE_PX) {
+      revealHomeNav('drift');
+    }
+  }
+
+  function armHomeNavReveal() {
+    navRevealDone = false;
+    navRevealAnchor = null;
+    var panelHome = document.getElementById('panel-home');
+    if (!panelHome) return;
+    panelHome.classList.remove('home-nav-reveal');
+    panelHome.removeAttribute('data-home-nav-reveal-mode');
+    if (navRevealTimer) {
+      clearTimeout(navRevealTimer);
+      navRevealTimer = null;
+    }
+    if (reducedMotion) {
+      panelHome.classList.add('home-nav-reveal');
+      navRevealDone = true;
+      return;
+    }
+    navRevealTimer = setTimeout(function () {
+      revealHomeNav('linger');
+    }, HOME_NAV_REVEAL_FALLBACK_MS);
+  }
+
   function syncHomeChrome() {
     var panelHome = document.getElementById('panel-home');
     if (!panelHome) return;
     panelHome.setAttribute('data-home-hero-phase', HOME_HERO_PHASE);
     panelHome.classList.add('home-hero-hint-on');
-    panelHome.classList.remove('home-nav-reveal');
-    void panelHome.offsetWidth;
-    panelHome.classList.add('home-nav-reveal');
+    if (HOME_HERO_PHASE === 'intro') {
+      armHomeNavReveal();
+    } else {
+      revealHomeNav('quote');
+    }
   }
 
   function beginHeroMorph() {
@@ -1276,15 +1541,55 @@ function initTextParticles() {
     var cy;
     var line2Y;
     var navTopPx;
+    var introLayout = null;
+    var quoteLayout = null;
+    var introRanX = startX;
+    var introSongX = endXBand;
+    var introShiftX = Math.round(Math.max(32, Math.min(72, W * 0.055)));
     if (phase === 'intro') {
-      var introTop = Math.round(H * 0.02) + Math.min(padY, 16);
+      introRanX = startX - introShiftX;
+      introSongX = endXBand + introShiftX;
       var introFitW = contentW;
-      var introMaxBlockH = Math.round(H * 0.62) - introTop;
-      rasterPx = fitIntroFontSize(octx, introFitW, introMaxBlockH);
-      octx.font = introMonoFont(rasterPx);
-      var introGap = Math.round(rasterPx * INTRO_LINE_GAP_RATIO);
-      cy = introTop + rasterPx;
-      line2Y = cy + introGap + Math.round(rasterPx * 0.92);
+      var introMaxBlockH = Math.round(H * 0.62);
+      if (glyphsReady) {
+        introLayout = layoutIntroGlyphs(
+          ranGlyphImg,
+          songGlyphImg,
+          introFitW,
+          introMaxBlockH,
+          0
+        );
+        var introTop = Math.round((H - introLayout.blockH) * 0.5);
+        if (introTop < padY) introTop = padY;
+        introLayout.ranTop = introTop;
+        introLayout.songTop = introTop + introLayout.ranH + introLayout.gap;
+        rasterPx = introLayout.ranH;
+        cy = introLayout.ranTop + introLayout.ranH;
+        line2Y = introLayout.songTop + introLayout.songH;
+      } else {
+        rasterPx = fitIntroFontSize(octx, introFitW, introMaxBlockH);
+        octx.font = introMonoFont(rasterPx);
+        var introGap = Math.round(rasterPx * INTRO_LINE_GAP_RATIO);
+        var textBlockH = rasterPx + introGap + Math.round(rasterPx * 0.92);
+        var introTop = Math.round((H - textBlockH) * 0.5);
+        if (introTop < padY) introTop = padY;
+        cy = introTop + rasterPx;
+        line2Y = cy + introGap + Math.round(rasterPx * 0.92);
+      }
+    } else if (becomingGlyphReady) {
+      quoteLayout = layoutQuoteGlyph(
+        becomingGlyphImg,
+        contentW,
+        Math.round(H * 0.7),
+        H,
+        padY
+      );
+      startX = band.centered
+        ? band.left + Math.max(0, Math.round((contentW - quoteLayout.w) / 2))
+        : band.left;
+      rasterPx = quoteLayout.h;
+      cy = quoteLayout.top + Math.round(quoteLayout.h * 0.46);
+      line2Y = quoteLayout.top + quoteLayout.h;
     } else {
       rasterPx = QUOTE_FONT_SIZE;
       octx.font = introMonoFont(QUOTE_FONT_SIZE);
@@ -1313,46 +1618,116 @@ function initTextParticles() {
     var y1;
 
     if (phase === 'intro') {
-      octx.fillStyle = particleDotInk;
-      octx.font = introMonoFont(rasterPx);
-      var endX = endXBand;
-      octx.strokeStyle = particleDotInk;
-      paintIntroLine(octx, INTRO_LINE1, startX, cy, rasterPx);
-      octx.textAlign = 'right';
-      paintIntroLine(octx, INTRO_LINE2, endX, line2Y, rasterPx);
-      octx.textAlign = 'left';
-      var zonePad = Math.round(rasterPx * 0.1);
-      var ranW = octx.measureText(INTRO_LINE1).width;
-      var songW = octx.measureText(INTRO_LINE2).width;
-      ranZone.x1 = startX - zonePad;
-      ranZone.x2 = startX + ranW + zonePad;
-      ranZone.y1 = cy - rasterPx - zonePad;
-      ranZone.y2 = cy + zonePad;
-      songZone.x1 = endX - songW - zonePad;
-      songZone.x2 = endX + zonePad;
-      songZone.y1 = line2Y - rasterPx - zonePad;
-      songZone.y2 = line2Y + Math.round(rasterPx * 0.5) + zonePad;
-      x0 = Math.max(0, Math.floor(startX - pad));
-      x1 = Math.min(W, Math.ceil(endX + pad));
-      y0 = Math.max(0, Math.floor(cy - rasterPx - pad));
-      y1 = Math.min(H, Math.ceil(line2Y + rasterPx * 0.45 + pad));
+      var zonePad = Math.round(rasterPx * 0.08);
+      if (introLayout) {
+        var ranDrawX = introRanX;
+        var songDrawX = introSongX - introLayout.songW;
+        refreshParticleInk();
+        blitGlyphInk(
+          octx,
+          ranGlyphImg,
+          ranDrawX,
+          introLayout.ranTop,
+          introLayout.ranW,
+          introLayout.ranH,
+          particleDotInk,
+          introLayout.ranB
+        );
+        blitGlyphInk(
+          octx,
+          songGlyphImg,
+          songDrawX,
+          introLayout.songTop,
+          introLayout.songW,
+          introLayout.songH,
+          particleDotInk,
+          introLayout.songB
+        );
+        ranZone.x1 = ranDrawX - zonePad;
+        ranZone.x2 = ranDrawX + introLayout.ranW + zonePad;
+        ranZone.y1 = introLayout.ranTop - zonePad;
+        ranZone.y2 = introLayout.ranTop + introLayout.ranH + zonePad;
+        songZone.x1 = songDrawX - zonePad;
+        songZone.x2 = introSongX + zonePad;
+        songZone.y1 = introLayout.songTop - zonePad;
+        songZone.y2 = introLayout.songTop + introLayout.songH + zonePad;
+        x0 = Math.max(0, Math.floor(ranDrawX - pad));
+        x1 = Math.min(W, Math.ceil(introSongX + pad));
+        y0 = Math.max(0, Math.floor(introLayout.ranTop - pad));
+        y1 = Math.min(
+          H,
+          Math.ceil(introLayout.songTop + introLayout.songH + pad)
+        );
+      } else {
+        octx.fillStyle = particleDotInk;
+        octx.font = introMonoFont(rasterPx);
+        octx.strokeStyle = particleDotInk;
+        paintIntroLine(octx, INTRO_LINE1, introRanX, cy, rasterPx);
+        octx.textAlign = 'right';
+        paintIntroLine(octx, INTRO_LINE2, introSongX, line2Y, rasterPx);
+        octx.textAlign = 'left';
+        var ranW = octx.measureText(INTRO_LINE1).width;
+        var songW = octx.measureText(INTRO_LINE2).width;
+        ranZone.x1 = introRanX - zonePad;
+        ranZone.x2 = introRanX + ranW + zonePad;
+        ranZone.y1 = cy - rasterPx - zonePad;
+        ranZone.y2 = cy + zonePad;
+        songZone.x1 = introSongX - songW - zonePad;
+        songZone.x2 = introSongX + zonePad;
+        songZone.y1 = line2Y - rasterPx - zonePad;
+        songZone.y2 = line2Y + Math.round(rasterPx * 0.5) + zonePad;
+        x0 = Math.max(0, Math.floor(introRanX - pad));
+        x1 = Math.min(W, Math.ceil(introSongX + pad));
+        y0 = Math.max(0, Math.floor(cy - rasterPx - pad));
+        y1 = Math.min(H, Math.ceil(line2Y + rasterPx * 0.45 + pad));
+      }
       oneselfZone.x1 = -99999;
       oneselfZone.y1 = -99999;
       oneselfZone.x2 = -99998;
       oneselfZone.y2 = -99998;
       if (portrait) portrait.style.opacity = '0';
     } else {
-      octx.fillStyle = particleDotInk;
-      octx.font = introMonoFont(QUOTE_FONT_SIZE);
-      octx.fillText(LINE1, startX, cy);
-      octx.fillText(LINE2, startX, line2Y);
+      if (quoteLayout) {
+        refreshParticleInk();
+        blitGlyphInk(
+          octx,
+          becomingGlyphImg,
+          startX,
+          quoteLayout.top,
+          quoteLayout.w,
+          quoteLayout.h,
+          particleDotInk,
+          quoteLayout.b
+        );
+        var lineSplitY = quoteLayout.top + Math.round(quoteLayout.h * 0.46);
+        oneselfZone.x1 = startX + Math.round(quoteLayout.w * 0.34);
+        oneselfZone.x2 = startX + quoteLayout.w - 6;
+        oneselfZone.y1 = quoteLayout.top;
+        oneselfZone.y2 = lineSplitY;
+        x0 = Math.max(0, Math.floor(startX - pad));
+        x1 = Math.min(W, Math.ceil(startX + quoteLayout.w + pad));
+        y0 = Math.max(0, Math.floor(quoteLayout.top - pad));
+        y1 = Math.min(H, Math.ceil(quoteLayout.top + quoteLayout.h + pad));
+      } else {
+        octx.fillStyle = particleDotInk;
+        octx.font = introMonoFont(QUOTE_FONT_SIZE);
+        octx.fillText(LINE1, startX, cy);
+        octx.fillText(LINE2, startX, line2Y);
 
-      var beforeW = octx.measureText('Becoming ').width;
-      var oneselfW = octx.measureText('oneself').width;
-      oneselfZone.x1 = startX + beforeW;
-      oneselfZone.x2 = startX + beforeW + oneselfW;
-      oneselfZone.y1 = cy - QUOTE_FONT_SIZE;
-      oneselfZone.y2 = cy + 10;
+        var beforeW = octx.measureText('Becoming ').width;
+        var oneselfW = octx.measureText('oneself').width;
+        oneselfZone.x1 = startX + beforeW;
+        oneselfZone.x2 = startX + beforeW + oneselfW;
+        oneselfZone.y1 = cy - QUOTE_FONT_SIZE;
+        oneselfZone.y2 = cy + 10;
+
+        var w1 = octx.measureText(LINE1).width;
+        var w2 = octx.measureText(LINE2).width;
+        x0 = Math.max(0, Math.floor(startX - pad));
+        x1 = Math.min(W, Math.ceil(startX + Math.max(w1, w2) + pad));
+        y0 = Math.max(0, Math.floor(cy - QUOTE_FONT_SIZE - pad));
+        y1 = Math.min(H, Math.ceil(line2Y + QUOTE_FONT_SIZE * 0.45 + pad));
+      }
 
       if (portrait) {
         var gapPx = 10;
@@ -1373,23 +1748,21 @@ function initTextParticles() {
         portrait.style.right = 'auto';
         portrait.style.transform = 'none';
       }
-
-      var w1 = octx.measureText(LINE1).width;
-      var w2 = octx.measureText(LINE2).width;
-      x0 = Math.max(0, Math.floor(startX - pad));
-      x1 = Math.min(W, Math.ceil(startX + Math.max(w1, w2) + pad));
-      y0 = Math.max(0, Math.floor(cy - QUOTE_FONT_SIZE - pad));
-      y1 = Math.min(H, Math.ceil(line2Y + QUOTE_FONT_SIZE * 0.45 + pad));
     }
 
     var iw = x1 - x0;
     var ih = y1 - y0;
     var data = octx.getImageData(x0, y0, iw, ih).data;
     var introTagSplitY =
-      phase === 'intro' ? line2Y - Math.round(rasterPx * 0.28) : 0;
+      phase === 'intro'
+        ? introLayout
+          ? introLayout.ranTop + introLayout.ranH + Math.round(introLayout.gap * 0.45)
+          : line2Y - Math.round(rasterPx * 0.28)
+        : 0;
+    var textSample = phase === 'quote' && quoteLayout ? 2 : SAMPLE;
     textParticles = [];
-    for (var sx = 0; sx < iw; sx += SAMPLE) {
-      for (var sy = 0; sy < ih; sy += SAMPLE) {
+    for (var sx = 0; sx < iw; sx += textSample) {
+      for (var sy = 0; sy < ih; sy += textSample) {
         var ii = (sy * iw + sx) * 4;
         if (data[ii + 3] > 100) {
           var pTag = null;
@@ -1413,28 +1786,36 @@ function initTextParticles() {
     if (panelHome) {
       var copyPad = SAMPLE * 3;
       if (phase === 'intro') {
-        var songBottomY = Math.ceil(line2Y + rasterPx * 0.45 + copyPad);
+        var songBottomY = introLayout
+          ? Math.ceil(introLayout.songTop + introLayout.songH + copyPad)
+          : Math.ceil(line2Y + rasterPx * 0.45 + copyPad);
         navTopPx =
           songBottomY + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
         panelHome.setAttribute('data-home-nav-align', 'right');
         panelHome.style.setProperty('--home-nav-top', Math.round(navTopPx) + 'px');
         panelHome.style.setProperty(
           '--home-nav-right',
-          Math.round(W - endXBand) + 'px'
+          Math.round(W - introSongX) + 'px'
         );
         panelHome.style.removeProperty('--home-nav-left');
         panelHome.style.removeProperty('--home-nav-width');
       } else {
-        octx.font = introMonoFont(QUOTE_FONT_SIZE);
-        var quoteTextW = Math.max(
-          octx.measureText(LINE1).width,
-          octx.measureText(LINE2).width
-        );
-        var quoteBottomY = Math.ceil(line2Y + QUOTE_FONT_SIZE * 0.45 + copyPad);
-        navTopPx =
-          quoteBottomY +
-          QUOTE_FONT_SIZE * (HOME_NAV_MENU_LINE_GAP - 1);
-        var quoteRightPx = startX + quoteTextW;
+        var quoteBottomY = quoteLayout
+          ? Math.ceil(quoteLayout.top + quoteLayout.h + copyPad)
+          : Math.ceil(line2Y + QUOTE_FONT_SIZE * 0.45 + copyPad);
+        navTopPx = quoteLayout
+          ? quoteBottomY + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP
+          : quoteBottomY + QUOTE_FONT_SIZE * (HOME_NAV_MENU_LINE_GAP - 1);
+        var quoteRightPx = quoteLayout
+          ? startX + quoteLayout.w
+          : startX +
+            Math.max(
+              octx.measureText(LINE1).width,
+              octx.measureText(LINE2).width
+            );
+        if (!quoteLayout) {
+          octx.font = introMonoFont(QUOTE_FONT_SIZE);
+        }
         panelHome.setAttribute('data-home-nav-align', 'right');
         panelHome.style.setProperty('--home-nav-top', Math.round(navTopPx) + 'px');
         panelHome.style.setProperty(
@@ -1619,9 +2000,12 @@ function initTextParticles() {
       alphaSpeed: 2.2,
     });
 
+    var drawTextDot =
+      HOME_HERO_PHASE === 'quote' && becomingGlyphReady ? 5 : DOT;
+
     drawParticleLayer(textParticles, {
       ink: particleDotInk,
-      dot: DOT,
+      dot: drawTextDot,
       radius: 76,
       drag: 2.35,
       spring: 0.045,
@@ -1669,6 +2053,7 @@ function initTextParticles() {
     if (introHit === 'song') hoverSong = true;
     if (introHit) container.setAttribute('data-hover-zone', introHit);
     else container.removeAttribute('data-hover-zone');
+    tryRevealHomeNav(mx, my);
   });
   container.addEventListener('mouseleave', function() {
     mouseActive = false;
@@ -1746,6 +2131,15 @@ function initTextParticles() {
     raf = requestAnimationFrame(draw);
   };
 
+  HOME_NAV_CANCEL_REVEAL = function () {
+    if (navRevealTimer) {
+      clearTimeout(navRevealTimer);
+      navRevealTimer = null;
+    }
+    navRevealDone = false;
+    navRevealAnchor = null;
+  };
+
   buildParticles();
   HOME_HERO_RESUME_DRAW();
 
@@ -1769,6 +2163,7 @@ function showSection(id) {
 
   var panelHome = document.getElementById('panel-home');
   if (panelHome && id !== 'home') {
+    if (typeof HOME_NAV_CANCEL_REVEAL === 'function') HOME_NAV_CANCEL_REVEAL();
     panelHome.classList.remove('home-hero-morphing', 'home-nav-reveal', 'home-hero-hint-on');
   }
 
