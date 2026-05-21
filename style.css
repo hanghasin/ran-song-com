@@ -26,8 +26,8 @@ html[data-theme='light'] {
   --invert-bg: #000000;
   --invert-fg: #ffffff;
   --on-dark-ui: #ffffff;
-  --particle-ink: #000000;
-  --home-bg-particle: rgba(0, 0, 0, 0.22);
+  --particle-ink: #3a3836;
+  --home-bg-particle: rgba(0, 0, 0, 0.18);
   --focus-ring: rgba(0, 0, 0, 0.35);
   --visited-strike: rgba(0, 0, 0, 0.35);
   --scrub-track: rgba(0, 0, 0, 0.12);
@@ -325,21 +325,29 @@ html[data-theme='dark'] #panel-home {
 }
 
 #panel-home.home-nav-reveal .home-nav .nav-link {
-  animation: none;
-  opacity: 1;
-  transform: none;
-  pointer-events: auto;
+  animation: homeNavReveal 0.55s ease backwards;
+}
+
+#panel-home.home-nav-reveal .home-nav .nav-link:nth-child(1) { animation-delay: 0.08s; }
+#panel-home.home-nav-reveal .home-nav .nav-link:nth-child(2) { animation-delay: 0.14s; }
+#panel-home.home-nav-reveal .home-nav .nav-link:nth-child(3) { animation-delay: 0.2s; }
+#panel-home.home-nav-reveal .home-nav .nav-link:nth-child(4) { animation-delay: 0.26s; }
+#panel-home.home-nav-reveal .home-nav .nav-link:nth-child(5) { animation-delay: 0.32s; }
+
+@keyframes homeNavReveal {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .home-texture[data-hover-zone='ran'],
 .home-texture[data-hover-zone='song'] {
   cursor: pointer !important;
-}
-
-#panel-home:not(.home-nav-reveal) .home-nav .nav-link {
-  opacity: 0;
-  pointer-events: none;
-  transition: none;
 }
 
 .home-nav .nav-link {
@@ -402,6 +410,8 @@ html[data-theme='dark'] #panel-home {
   height: 100%;
   pointer-events: none;
   z-index: 2;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 /* Portrait — 4:3; JS pins top-right snug to oneself (above caps, clears glyphs) */

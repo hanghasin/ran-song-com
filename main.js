@@ -25,7 +25,6 @@ var HOME_HERO_PARTICLE_REBUILD = null;
 /** Stop / resume the home canvas loop (avoids ghost layer when another panel is active). */
 var HOME_HERO_STOP_DRAW = null;
 var HOME_HERO_RESUME_DRAW = null;
-var HOME_NAV_CANCEL_REVEAL = null;
 
 function readCssVar(name, fallback) {
   try {
@@ -1025,8 +1024,10 @@ function initTextParticles() {
   canvas.setAttribute('aria-hidden', 'true');
   container.appendChild(canvas);
   var ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
 
   var W = 0, H = 0;
+  var dpr = 1;
   var textParticles = [];
   var bgParticles = [];
   var raf = null;
@@ -1035,9 +1036,24 @@ function initTextParticles() {
   var grainReady = false;
   var ranGlyphImg = new Image();
   var songGlyphImg = new Image();
-  var becomingGlyphImg = new Image();
-  var glyphsReady = false;
-  var becomingGlyphReady = false;
+  var quoteGlyphImg = new Image();
+  var ranGlyphBounds = null;
+  var songGlyphBounds = null;
+  var quoteGlyphBounds = null;
+  var quoteOneselfBounds = null;
+  var ranGlyphPolarity = 'dark';
+  var songGlyphPolarity = 'dark';
+  var quoteGlyphPolarity = 'dark';
+  var homeGlyphsLoaded = 0;
+  var HOME_GLYPH_COUNT = 3;
+  var GLYPH_INK_LUM_MAX = 0.4;
+  var GLYPH_INK_LUM_MIN = 0.74;
+  var ranGlyphPoints = null;
+  var songGlyphPoints = null;
+  var quoteGlyphPoints = null;
+  var HOME_GLYPH_ASSET_V = '6';
+  var QUOTE_GLYPH_MAX_VH = 0.97;
+  var QUOTE_GLYPH_MAX_VW = 0.94;
 
   var LINE1 = 'Becoming oneself';
   var LINE2 = 'is a long experiment.';
@@ -1048,14 +1064,10 @@ function initTextParticles() {
   var INTRO_LINE_GAP_RATIO = 0.07;
   var DOT = 4;
   var BG_DOT = 3;
+  var GLYPH_SAMPLE = 3;
   var HOME_NAV_RESERVE = 56;
   var HOME_NAV_MENU_LINE_PX = 13;
   var HOME_NAV_MENU_LINE_GAP = 2;
-  var HOME_NAV_REVEAL_FALLBACK_MS = 3200;
-  var HOME_NAV_MOVE_PX = 32;
-  var navRevealTimer = null;
-  var navRevealDone = false;
-  var navRevealAnchor = null;
   var quoteLineLead = 14;
   var SAMPLE = 3;
 
@@ -1097,201 +1109,267 @@ function initTextParticles() {
   };
   grainImg.src = 'textures/home-grain-even.png';
 
-  function parseInkRgb(ink) {
-    if (!ink || ink[0] !== '#') return [0, 0, 0];
-    var h = ink.slice(1);
-    if (h.length === 3) {
-      return [
-        parseInt(h[0] + h[0], 16),
-        parseInt(h[1] + h[1], 16),
-        parseInt(h[2] + h[2], 16),
-      ];
+  function glyphLumAt(d, cw, x, y) {
+    var i = (y * cw + x) * 4;
+    return (d[i] + d[i + 1] + d[i + 2]) / 765;
+  }
+
+  function glyphIsInkLum(lum, polarity) {
+    return polarity === 'light' ? lum > GLYPH_INK_LUM_MIN : lum < GLYPH_INK_LUM_MAX;
+  }
+
+  /** Drop full-width/height border strokes on light-on-dark glyph art. */
+  function glyphTrimFrame(d, cw, bounds, polarity) {
+    if (polarity !== 'light' || bounds.w < 8 || bounds.h < 8) return bounds;
+    var minX = bounds.minX;
+    var maxX = bounds.minX + bounds.w - 1;
+    var minY = bounds.minY;
+    var maxY = bounds.minY + bounds.h - 1;
+    var spanThresh = 0.78;
+
+    function rowSpan(y) {
+      var count = 0;
+      var x;
+      for (x = minX; x <= maxX; x++) {
+        if (glyphIsInkLum(glyphLumAt(d, cw, x, y), polarity)) count++;
+      }
+      return count / bounds.w;
     }
-    return [
-      parseInt(h.slice(0, 2), 16),
-      parseInt(h.slice(2, 4), 16),
-      parseInt(h.slice(4, 6), 16),
-    ];
+
+    function colSpan(x) {
+      var count = 0;
+      var y;
+      var innerH = maxY - minY + 1;
+      for (y = minY; y <= maxY; y++) {
+        if (glyphIsInkLum(glyphLumAt(d, cw, x, y), polarity)) count++;
+      }
+      return innerH > 0 ? count / innerH : 0;
+    }
+
+    while (minY < maxY && rowSpan(minY) > spanThresh) minY++;
+    while (minY < maxY && rowSpan(maxY) > spanThresh) maxY--;
+    while (minX < maxX && colSpan(minX) > spanThresh) minX++;
+    while (minX < maxX && colSpan(maxX) > spanThresh) maxX--;
+
+    return {
+      minX: minX,
+      minY: minY,
+      w: maxX - minX + 1,
+      h: maxY - minY + 1,
+      polarity: polarity,
+    };
   }
 
-  var glyphBoundsCache = {};
-  var GLYPH_ASSET_V = '20260520c';
-
-  function clearGlyphBoundsCache() {
-    glyphBoundsCache = {};
-  }
-
-  function glyphInkBounds(img) {
-    var key = (img.src || 'glyph') + '|' + GLYPH_ASSET_V;
-    if (glyphBoundsCache[key]) return glyphBoundsCache[key];
-    var w = img.naturalWidth;
-    var h = img.naturalHeight;
-    var tc = document.createElement('canvas');
-    tc.width = w;
-    tc.height = h;
-    var tctx = tc.getContext('2d');
-    tctx.drawImage(img, 0, 0);
-    var data = tctx.getImageData(0, 0, w, h).data;
-    var minX = w;
-    var minY = h;
+  function glyphAnalyze(img) {
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    var cx = c.getContext('2d');
+    cx.drawImage(img, 0, 0);
+    var d = cx.getImageData(0, 0, c.width, c.height).data;
+    var darkN = 0;
+    var lightN = 0;
+    var y;
+    var x;
+    for (y = 0; y < c.height; y++) {
+      for (x = 0; x < c.width; x++) {
+        var lum = glyphLumAt(d, c.width, x, y);
+        if (lum < 0.22) darkN++;
+        if (lum > 0.76) lightN++;
+      }
+    }
+    /* Stroke colour is the minority: dark letters on light field, or light on dark. */
+    var polarity = darkN <= lightN ? 'dark' : 'light';
+    var minX = c.width;
+    var minY = c.height;
     var maxX = 0;
     var maxY = 0;
-    for (var y = 0; y < h; y++) {
-      for (var x = 0; x < w; x++) {
-        var ii = (y * w + x) * 4;
-        var lum = (data[ii] + data[ii + 1] + data[ii + 2]) / 765;
-        if (lum < 0.42) {
+    for (y = 0; y < c.height; y++) {
+      for (x = 0; x < c.width; x++) {
+        var lum2 = glyphLumAt(d, c.width, x, y);
+        if (glyphIsInkLum(lum2, polarity)) {
           if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
           if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
           if (y > maxY) maxY = y;
         }
       }
     }
-    var bounds;
-    if (minX > maxX) {
-      bounds = { sx: 0, sy: 0, sw: w, sh: h, inkAspect: w / h };
-    } else {
-      var trim = 3;
-      minX = Math.max(0, minX - trim);
-      minY = Math.max(0, minY - trim);
-      maxX = Math.min(w - 1, maxX + trim);
-      maxY = Math.min(h - 1, maxY + trim);
-      var sw = maxX - minX + 1;
-      var sh = maxY - minY + 1;
-      bounds = { sx: minX, sy: minY, sw: sw, sh: sh, inkAspect: sw / sh };
+    if (maxX < minX) return null;
+    var bounds = {
+      minX: minX,
+      minY: minY,
+      w: maxX - minX + 1,
+      h: maxY - minY + 1,
+      polarity: polarity,
+    };
+    if (polarity === 'light') {
+      bounds = glyphTrimFrame(d, c.width, bounds, polarity);
     }
-    glyphBoundsCache[key] = bounds;
     return bounds;
   }
 
-  function blitGlyphInk(destCtx, img, destX, destY, destW, destH, ink, bounds) {
-    var rgb = parseInkRgb(ink);
-    var b = bounds || glyphInkBounds(img);
-    var tc = document.createElement('canvas');
-    tc.width = destW;
-    tc.height = destH;
-    var tctx = tc.getContext('2d');
-    tctx.imageSmoothingEnabled = false;
-    tctx.drawImage(img, b.sx, b.sy, b.sw, b.sh, 0, 0, destW, destH);
-    var src = tctx.getImageData(0, 0, destW, destH).data;
-    var out = destCtx.createImageData(destW, destH);
-    for (var i = 0; i < src.length; i += 4) {
-      var lum = (src[i] + src[i + 1] + src[i + 2]) / 765;
-      if (lum < 0.42) {
-        out.data[i] = rgb[0];
-        out.data[i + 1] = rgb[1];
-        out.data[i + 2] = rgb[2];
-        out.data[i + 3] = 255;
+  function glyphExtractPoints(img, bounds, polarity) {
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    var cx = c.getContext('2d');
+    cx.drawImage(img, 0, 0);
+    var d = cx.getImageData(0, 0, c.width, c.height).data;
+    var points = [];
+    var xEnd = bounds.minX + bounds.w;
+    var yEnd = bounds.minY + bounds.h;
+    var y;
+    var x;
+    for (y = bounds.minY; y < yEnd; y += GLYPH_SAMPLE) {
+      for (x = bounds.minX; x < xEnd; x += GLYPH_SAMPLE) {
+        var lum = glyphLumAt(d, c.width, x, y);
+        if (glyphIsInkLum(lum, polarity)) {
+          var grain = 1;
+          if (polarity === 'light') {
+            grain = 0.48 + Math.min(0.52, (lum - GLYPH_INK_LUM_MIN) / (1 - GLYPH_INK_LUM_MIN + 0.001));
+          } else {
+            grain = 0.48 + Math.min(0.52, (GLYPH_INK_LUM_MAX - lum) / (GLYPH_INK_LUM_MAX + 0.001));
+          }
+          points.push({ x: x, y: y, grain: grain });
+        }
       }
     }
-    destCtx.putImageData(out, destX, destY);
+    return points;
   }
 
-  function layoutIntroGlyphs(ranImg, songImg, maxW, maxH, padTop) {
-    var ranB = glyphInkBounds(ranImg);
-    var songB = glyphInkBounds(songImg);
-    var ranH = Math.round(maxH * 0.48);
-    var ranW = Math.round(ranH * ranB.inkAspect);
-    var songH = Math.round(maxH * 0.54);
-    var songW = Math.round(songH * songB.inkAspect);
-    var gap = Math.round(Math.max(ranH, songH) * INTRO_LINE_GAP_RATIO);
-    var maxRanW = Math.round(maxW * 0.88);
-    var maxSongW = Math.round(maxW * 0.92);
-    if (ranW > maxRanW) {
-      var ranScale = maxRanW / ranW;
-      ranW = maxRanW;
-      ranH = Math.round(ranH * ranScale);
+  function mapGlyphPointsToScreen(points, src, destX, destY, destW, destH) {
+    var mapped = [];
+    var i;
+    for (i = 0; i < points.length; i++) {
+      var pt = points[i];
+      mapped.push({
+        x: destX + ((pt.x - src.minX) / src.w) * destW,
+        y: destY + ((pt.y - src.minY) / src.h) * destH,
+      });
     }
-    if (songW > maxSongW) {
-      var songScale = maxSongW / songW;
-      songW = maxSongW;
-      songH = Math.round(songH * songScale);
+    return mapped;
+  }
+
+  function pushScreenGlyphParticles(points, tag) {
+    var i;
+    for (i = 0; i < points.length; i++) {
+      var pt = points[i];
+      textParticles.push(makeParticle(pt.x, pt.y, 'text', pt.grain == null ? 1 : pt.grain, tag));
     }
-    var blockH = ranH + gap + songH;
-    if (blockH > maxH) {
-      var s = maxH / blockH;
-      ranW = Math.round(ranW * s);
-      ranH = Math.round(ranH * s);
-      songW = Math.round(songW * s);
-      songH = Math.round(songH * s);
-      gap = Math.round(gap * s);
+  }
+
+  function glyphOneselfBounds(img, bounds, polarity) {
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    var cx = c.getContext('2d');
+    cx.drawImage(img, 0, 0);
+    var d = cx.getImageData(0, 0, c.width, c.height).data;
+    var lineSplit = bounds.minY + Math.round(bounds.h * 0.54);
+    var minX = bounds.minX + Math.round(bounds.w * 0.38);
+    var maxX = bounds.minX + Math.round(bounds.w * 0.96);
+    var x;
+    var y;
+    var inkMin = bounds.minX + bounds.w;
+    var inkMax = bounds.minX;
+    var found = false;
+    var isInkAt = function(lum) {
+      return glyphIsInkLum(lum, polarity);
+    };
+    for (x = bounds.minX; x < bounds.minX + bounds.w; x++) {
+      var colInk = false;
+      for (y = bounds.minY; y < lineSplit; y++) {
+        var i = (y * c.width + x) * 4;
+        var lum = (d[i] + d[i + 1] + d[i + 2]) / 765;
+        if (isInkAt(lum)) {
+          colInk = true;
+          break;
+        }
+      }
+      if (colInk && x >= bounds.minX + Math.round(bounds.w * 0.3)) {
+        if (x < inkMin) inkMin = x;
+        if (x > inkMax) inkMax = x;
+        found = true;
+      }
+    }
+    if (found) {
+      minX = inkMin;
+      maxX = inkMax;
     }
     return {
-      ranW: ranW,
-      ranH: ranH,
-      songW: songW,
-      songH: songH,
-      gap: gap,
-      blockH: ranH + gap + songH,
-      ranB: ranB,
-      songB: songB,
+      minX: minX,
+      maxX: maxX,
+      minY: bounds.minY,
+      maxY: lineSplit - 1,
     };
   }
 
-  function layoutQuoteGlyph(img, maxW, maxH, viewH, padTop) {
-    var b = glyphInkBounds(img);
-    var glyphH = Math.round(maxH * 0.92);
-    var targetW = Math.round(glyphH * b.inkAspect);
-    if (targetW > Math.round(maxW * 0.98)) {
-      targetW = Math.round(maxW * 0.98);
-      glyphH = Math.round(targetW / b.inkAspect);
-    }
-    if (glyphH > maxH) {
-      glyphH = maxH;
-      targetW = Math.round(glyphH * b.inkAspect);
-    }
-    var navReserve = HOME_NAV_RESERVE + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
-    var top = Math.round((viewH - glyphH - navReserve) * 0.5);
-    if (top < padTop) top = padTop;
-    return { w: targetW, h: glyphH, top: top, b: b };
-  }
-
-  function syncGlyphsReady() {
-    var introOk =
-      ranGlyphImg.complete &&
-      ranGlyphImg.naturalWidth > 0 &&
-      songGlyphImg.complete &&
-      songGlyphImg.naturalWidth > 0;
-    var quoteOk =
-      becomingGlyphImg.complete && becomingGlyphImg.naturalWidth > 0;
-    var changed = false;
-    if (introOk && !glyphsReady) {
-      glyphsReady = true;
-      changed = true;
-    }
-    if (quoteOk && !becomingGlyphReady) {
-      becomingGlyphReady = true;
-      changed = true;
-    }
-    if (changed) {
-      clearGlyphBoundsCache();
-      if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') {
-        HOME_HERO_PARTICLE_REBUILD();
+  function onHomeGlyphLoad() {
+    var ranMeta;
+    var songMeta;
+    var quoteMeta;
+    if (ranGlyphImg.naturalWidth && !ranGlyphBounds) {
+      ranMeta = glyphAnalyze(ranGlyphImg);
+      if (ranMeta) {
+        ranGlyphBounds = ranMeta;
+        ranGlyphPolarity = ranMeta.polarity;
+        ranGlyphPoints = glyphExtractPoints(ranGlyphImg, ranMeta, ranMeta.polarity);
       }
     }
-    return introOk;
+    if (songGlyphImg.naturalWidth && !songGlyphBounds) {
+      songMeta = glyphAnalyze(songGlyphImg);
+      if (songMeta) {
+        songGlyphBounds = songMeta;
+        songGlyphPolarity = songMeta.polarity;
+        songGlyphPoints = glyphExtractPoints(songGlyphImg, songMeta, songMeta.polarity);
+      }
+    }
+    if (quoteGlyphImg.naturalWidth && !quoteGlyphBounds) {
+      quoteMeta = glyphAnalyze(quoteGlyphImg);
+      if (quoteMeta) {
+        quoteGlyphBounds = quoteMeta;
+        quoteGlyphPolarity = quoteMeta.polarity;
+        quoteGlyphPoints = glyphExtractPoints(quoteGlyphImg, quoteMeta, quoteMeta.polarity);
+        quoteOneselfBounds = glyphOneselfBounds(
+          quoteGlyphImg,
+          quoteGlyphBounds,
+          quoteGlyphPolarity
+        );
+      }
+    }
+    homeGlyphsLoaded += 1;
+    if (
+      homeGlyphsLoaded >= HOME_GLYPH_COUNT &&
+      ranGlyphBounds &&
+      songGlyphBounds &&
+      quoteGlyphBounds &&
+      ranGlyphPoints &&
+      songGlyphPoints &&
+      quoteGlyphPoints &&
+      typeof HOME_HERO_PARTICLE_REBUILD === 'function'
+    ) {
+      HOME_HERO_PARTICLE_REBUILD();
+    }
   }
 
-  ranGlyphImg.onload = syncGlyphsReady;
-  songGlyphImg.onload = syncGlyphsReady;
-  becomingGlyphImg.onload = syncGlyphsReady;
-  clearGlyphBoundsCache();
-  ranGlyphImg.src = 'photos/home-ran-glyph.png?v=' + GLYPH_ASSET_V;
-  songGlyphImg.src = 'photos/home-song-glyph.png?v=' + GLYPH_ASSET_V;
-  becomingGlyphImg.src = 'photos/home-becoming-glyph.png?v=' + GLYPH_ASSET_V;
-  syncGlyphsReady();
+  ranGlyphImg.onload = onHomeGlyphLoad;
+  songGlyphImg.onload = onHomeGlyphLoad;
+  quoteGlyphImg.onload = onHomeGlyphLoad;
+  ranGlyphImg.src = 'photos/home-ran-glyph.png?v=' + HOME_GLYPH_ASSET_V;
+  songGlyphImg.src = 'photos/home-song-glyph.png?v=' + HOME_GLYPH_ASSET_V;
+  quoteGlyphImg.src = 'photos/home-quote-glyph.png?v=' + HOME_GLYPH_ASSET_V;
 
   function isHomeDarkTheme() {
     return document.documentElement.dataset.theme === 'dark';
   }
 
   function homeParticleInk() {
-    return isHomeDarkTheme() ? '#f4f2ee' : '#000000';
+    return isHomeDarkTheme() ? '#f2f0ec' : '#3a3836';
   }
 
   function homeBgParticleInk() {
-    return isHomeDarkTheme() ? 'rgba(255, 255, 255, 0.22)' : 'rgba(0, 0, 0, 0.22)';
+    return isHomeDarkTheme() ? 'rgba(255, 255, 255, 0.22)' : 'rgba(0, 0, 0, 0.18)';
   }
 
   function refreshParticleInk() {
@@ -1331,71 +1409,14 @@ function initTextParticles() {
     return null;
   }
 
-  function revealHomeNav(mode) {
-    if (navRevealDone) return;
-    navRevealDone = true;
-    if (navRevealTimer) {
-      clearTimeout(navRevealTimer);
-      navRevealTimer = null;
-    }
-    var ph = document.getElementById('panel-home');
-    if (!ph || !ph.classList.contains('panel--active')) return;
-    ph.setAttribute('data-home-nav-reveal-mode', mode || 'linger');
-    ph.classList.add('home-nav-reveal');
-  }
-
-  function tryRevealHomeNav(mx, my, mode) {
-    if (navRevealDone || HOME_HERO_PHASE !== 'intro') return;
-    if (hitIntroZone(mx, my)) {
-      revealHomeNav('explore');
-      return;
-    }
-    if (my > H * 0.58) {
-      revealHomeNav('approach');
-      return;
-    }
-    if (navRevealAnchor == null) {
-      navRevealAnchor = { x: mx, y: my };
-      return;
-    }
-    var dx = mx - navRevealAnchor.x;
-    var dy = my - navRevealAnchor.y;
-    if (dx * dx + dy * dy >= HOME_NAV_MOVE_PX * HOME_NAV_MOVE_PX) {
-      revealHomeNav('drift');
-    }
-  }
-
-  function armHomeNavReveal() {
-    navRevealDone = false;
-    navRevealAnchor = null;
-    var panelHome = document.getElementById('panel-home');
-    if (!panelHome) return;
-    panelHome.classList.remove('home-nav-reveal');
-    panelHome.removeAttribute('data-home-nav-reveal-mode');
-    if (navRevealTimer) {
-      clearTimeout(navRevealTimer);
-      navRevealTimer = null;
-    }
-    if (reducedMotion) {
-      panelHome.classList.add('home-nav-reveal');
-      navRevealDone = true;
-      return;
-    }
-    navRevealTimer = setTimeout(function () {
-      revealHomeNav('linger');
-    }, HOME_NAV_REVEAL_FALLBACK_MS);
-  }
-
   function syncHomeChrome() {
     var panelHome = document.getElementById('panel-home');
     if (!panelHome) return;
     panelHome.setAttribute('data-home-hero-phase', HOME_HERO_PHASE);
     panelHome.classList.add('home-hero-hint-on');
-    if (HOME_HERO_PHASE === 'intro') {
-      armHomeNavReveal();
-    } else {
-      revealHomeNav('quote');
-    }
+    panelHome.classList.remove('home-nav-reveal');
+    void panelHome.offsetWidth;
+    panelHome.classList.add('home-nav-reveal');
   }
 
   function beginHeroMorph() {
@@ -1497,6 +1518,112 @@ function initTextParticles() {
     return { left: left, width: width, right: left + width, centered: true };
   }
 
+  function introGlyphsUsable() {
+    return (
+      homeGlyphsLoaded >= HOME_GLYPH_COUNT &&
+      ranGlyphBounds &&
+      songGlyphBounds &&
+      ranGlyphPoints &&
+      songGlyphPoints &&
+      ranGlyphPoints.length > 0 &&
+      songGlyphPoints.length > 0
+    );
+  }
+
+  function quoteGlyphsUsable() {
+    return (
+      homeGlyphsLoaded >= HOME_GLYPH_COUNT &&
+      quoteGlyphBounds &&
+      quoteGlyphPoints &&
+      quoteGlyphPoints.length > 0
+    );
+  }
+
+  function fitQuoteGlyphLayout(maxW, maxH) {
+    var b = quoteGlyphBounds;
+    var scale = Math.min(maxW / b.w, maxH / b.h);
+    return {
+      scale: scale,
+      w: b.w * scale,
+      h: b.h * scale,
+      src: b,
+    };
+  }
+
+  function layoutIntroGlyphs(layout, startX, endX, introTop) {
+    var ranX = startX;
+    var ranY = introTop;
+    var songX = endX - layout.songW;
+    var songY = introTop + layout.ranH + layout.gap;
+    return {
+      ranX: ranX,
+      ranY: ranY,
+      ranW: layout.ranW,
+      ranH: layout.ranH,
+      songX: songX,
+      songY: songY,
+      songW: layout.songW,
+      songH: layout.songH,
+    };
+  }
+
+  function layoutQuoteGlyph(layout, startX, topY) {
+    return { x: startX, y: topY, w: layout.w, h: layout.h };
+  }
+
+  function mapQuoteOneselfZone(qBox) {
+    if (!quoteOneselfBounds || !quoteGlyphBounds) return null;
+    var b = quoteGlyphBounds;
+    var ob = quoteOneselfBounds;
+    var relX = (ob.minX - b.minX) / b.w;
+    var relW = (ob.maxX - ob.minX + 1) / b.w;
+    var relY = (ob.minY - b.minY) / b.h;
+    var relH = (ob.maxY - ob.minY + 1) / b.h;
+    return {
+      x1: qBox.x + relX * qBox.w,
+      x2: qBox.x + (relX + relW) * qBox.w,
+      y1: qBox.y + relY * qBox.h,
+      y2: qBox.y + (relY + relH) * qBox.h,
+    };
+  }
+
+  function fitIntroGlyphLayout(maxW, maxH) {
+    var rb = ranGlyphBounds;
+    var sb = songGlyphBounds;
+    var lo = 0.05;
+    var hi = 2.8;
+    var best = lo;
+    var iter;
+    for (iter = 0; iter < 36; iter++) {
+      var mid = (lo + hi) / 2;
+      var ranW = rb.w * mid;
+      var ranH = rb.h * mid;
+      var songW = sb.w * mid;
+      var songH = sb.h * mid;
+      var gap = ranH * INTRO_LINE_GAP_RATIO;
+      var totalW = Math.max(ranW, songW);
+      var totalH = ranH + gap + songH;
+      if (totalW <= maxW && totalH <= maxH) {
+        best = mid;
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    var scale = best;
+    var ranHFinal = rb.h * scale;
+    return {
+      scale: scale,
+      ranW: rb.w * scale,
+      ranH: ranHFinal,
+      songW: sb.w * scale,
+      songH: sb.h * scale,
+      gap: ranHFinal * INTRO_LINE_GAP_RATIO,
+      ranSrc: rb,
+      songSrc: sb,
+    };
+  }
+
   function fitIntroFontSize(octx, maxW, maxH) {
     var lo = INTRO_MIN_PX;
     var hi = Math.min(400, Math.floor(maxW * 0.98), Math.floor(maxH / 1.85));
@@ -1520,8 +1647,11 @@ function initTextParticles() {
   function buildParticles() {
     W = container.offsetWidth;
     H = container.offsetHeight;
-    canvas.width = W;
-    canvas.height = H;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
 
     var off = document.createElement('canvas');
     off.width = W;
@@ -1541,72 +1671,64 @@ function initTextParticles() {
     var cy;
     var line2Y;
     var navTopPx;
-    var introLayout = null;
-    var quoteLayout = null;
-    var introRanX = startX;
-    var introSongX = endXBand;
-    var introShiftX = Math.round(Math.max(32, Math.min(72, W * 0.055)));
+    var introUseGlyphs = false;
+    var introGlyphLayout = null;
+    var introTopPx = 0;
+    var quoteUseGlyphs = false;
+    var quoteGlyphLayout = null;
+    var quoteTopPx = 0;
     if (phase === 'intro') {
-      introRanX = startX - introShiftX;
-      introSongX = endXBand + introShiftX;
+      introTopPx = Math.round(H * 0.1) + Math.min(padY, 28);
       var introFitW = contentW;
-      var introMaxBlockH = Math.round(H * 0.62);
-      if (glyphsReady) {
-        introLayout = layoutIntroGlyphs(
-          ranGlyphImg,
-          songGlyphImg,
-          introFitW,
-          introMaxBlockH,
-          0
-        );
-        var introTop = Math.round((H - introLayout.blockH) * 0.5);
-        if (introTop < padY) introTop = padY;
-        introLayout.ranTop = introTop;
-        introLayout.songTop = introTop + introLayout.ranH + introLayout.gap;
-        rasterPx = introLayout.ranH;
-        cy = introLayout.ranTop + introLayout.ranH;
-        line2Y = introLayout.songTop + introLayout.songH;
+      var introMaxBlockH = Math.round(H * 0.62) - introTopPx;
+      introUseGlyphs = introGlyphsUsable();
+      if (introUseGlyphs) {
+        introGlyphLayout = fitIntroGlyphLayout(introFitW, introMaxBlockH);
+        cy = introTopPx + introGlyphLayout.ranH;
+        line2Y = introTopPx + introGlyphLayout.ranH + introGlyphLayout.gap + introGlyphLayout.songH;
+        rasterPx = Math.round(introGlyphLayout.ranH);
       } else {
         rasterPx = fitIntroFontSize(octx, introFitW, introMaxBlockH);
         octx.font = introMonoFont(rasterPx);
         var introGap = Math.round(rasterPx * INTRO_LINE_GAP_RATIO);
-        var textBlockH = rasterPx + introGap + Math.round(rasterPx * 0.92);
-        var introTop = Math.round((H - textBlockH) * 0.5);
-        if (introTop < padY) introTop = padY;
-        cy = introTop + rasterPx;
+        cy = introTopPx + rasterPx;
         line2Y = cy + introGap + Math.round(rasterPx * 0.92);
       }
-    } else if (becomingGlyphReady) {
-      quoteLayout = layoutQuoteGlyph(
-        becomingGlyphImg,
-        contentW,
-        Math.round(H * 0.7),
-        H,
-        padY
-      );
-      startX = band.centered
-        ? band.left + Math.max(0, Math.round((contentW - quoteLayout.w) / 2))
-        : band.left;
-      rasterPx = quoteLayout.h;
-      cy = quoteLayout.top + Math.round(quoteLayout.h * 0.46);
-      line2Y = quoteLayout.top + quoteLayout.h;
     } else {
-      rasterPx = QUOTE_FONT_SIZE;
-      octx.font = introMonoFont(QUOTE_FONT_SIZE);
-      var quoteTextW = Math.max(
-        octx.measureText(LINE1).width,
-        octx.measureText(LINE2).width
-      );
-      var quoteBlockH = QUOTE_FONT_SIZE + quoteLineLead + QUOTE_FONT_SIZE;
-      var quoteNavGap = QUOTE_FONT_SIZE * HOME_NAV_MENU_LINE_GAP;
-      var quoteStackH = quoteBlockH + quoteNavGap + HOME_NAV_RESERVE;
-      var quoteBlockTop = Math.round((H - quoteStackH) / 2);
-      if (quoteBlockTop < padY) quoteBlockTop = padY;
-      cy = quoteBlockTop + QUOTE_FONT_SIZE;
-      line2Y = cy + QUOTE_FONT_SIZE + quoteLineLead;
-      startX = band.centered
-        ? band.left + Math.max(0, Math.round((contentW - quoteTextW) / 2))
-        : band.left;
+      quoteUseGlyphs = quoteGlyphsUsable();
+      if (quoteUseGlyphs) {
+        var quoteFitW = band.centered
+          ? Math.min(Math.round(W * QUOTE_GLYPH_MAX_VW), W - padX * 2)
+          : contentW;
+        quoteGlyphLayout = fitQuoteGlyphLayout(quoteFitW, Math.round(H * QUOTE_GLYPH_MAX_VH));
+        var quoteNavGap = Math.round(quoteGlyphLayout.h * 0.07) + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
+        var quoteStackH = quoteGlyphLayout.h + quoteNavGap + HOME_NAV_RESERVE;
+        quoteTopPx = Math.round((H - quoteStackH) / 2);
+        if (quoteTopPx < padY) quoteTopPx = padY;
+        startX = band.centered
+          ? band.left + Math.max(0, Math.round((contentW - quoteGlyphLayout.w) / 2))
+          : band.left;
+        cy = quoteTopPx + quoteGlyphLayout.h;
+        line2Y = cy;
+        rasterPx = Math.round(quoteGlyphLayout.h * 0.45);
+      } else {
+        rasterPx = QUOTE_FONT_SIZE;
+        octx.font = introMonoFont(QUOTE_FONT_SIZE);
+        var quoteTextW = Math.max(
+          octx.measureText(LINE1).width,
+          octx.measureText(LINE2).width
+        );
+        var quoteBlockH = QUOTE_FONT_SIZE + quoteLineLead + QUOTE_FONT_SIZE;
+        var quoteNavGapFont = QUOTE_FONT_SIZE * HOME_NAV_MENU_LINE_GAP;
+        var quoteStackHFont = quoteBlockH + quoteNavGapFont + HOME_NAV_RESERVE;
+        var quoteBlockTop = Math.round((H - quoteStackHFont) / 2);
+        if (quoteBlockTop < padY) quoteBlockTop = padY;
+        cy = quoteBlockTop + QUOTE_FONT_SIZE;
+        line2Y = cy + QUOTE_FONT_SIZE + quoteLineLead;
+        startX = band.centered
+          ? band.left + Math.max(0, Math.round((contentW - quoteTextW) / 2))
+          : band.left;
+      }
     }
 
     refreshParticleInk();
@@ -1616,68 +1738,71 @@ function initTextParticles() {
     var x1;
     var y0;
     var y1;
+    var builtFromGlyphs = false;
 
     if (phase === 'intro') {
-      var zonePad = Math.round(rasterPx * 0.08);
-      if (introLayout) {
-        var ranDrawX = introRanX;
-        var songDrawX = introSongX - introLayout.songW;
-        refreshParticleInk();
-        blitGlyphInk(
-          octx,
-          ranGlyphImg,
-          ranDrawX,
-          introLayout.ranTop,
-          introLayout.ranW,
-          introLayout.ranH,
-          particleDotInk,
-          introLayout.ranB
+      var endX = endXBand;
+      var zonePad;
+      if (introUseGlyphs && introGlyphLayout) {
+        var glyphBox = layoutIntroGlyphs(introGlyphLayout, startX, endX, introTopPx);
+        zonePad = Math.round(Math.min(glyphBox.ranH, glyphBox.songH) * 0.08);
+        ranZone.x1 = glyphBox.ranX - zonePad;
+        ranZone.x2 = glyphBox.ranX + glyphBox.ranW + zonePad;
+        ranZone.y1 = glyphBox.ranY - zonePad;
+        ranZone.y2 = glyphBox.ranY + glyphBox.ranH + zonePad;
+        songZone.x1 = glyphBox.songX - zonePad;
+        songZone.x2 = glyphBox.songX + glyphBox.songW + zonePad;
+        songZone.y1 = glyphBox.songY - zonePad;
+        songZone.y2 = glyphBox.songY + glyphBox.songH + zonePad;
+        x0 = Math.max(0, Math.floor(Math.min(glyphBox.ranX, glyphBox.songX) - pad));
+        x1 = Math.min(W, Math.ceil(Math.max(glyphBox.ranX + glyphBox.ranW, glyphBox.songX + glyphBox.songW) + pad));
+        y0 = Math.max(0, Math.floor(glyphBox.ranY - pad));
+        y1 = Math.min(H, Math.ceil(glyphBox.songY + glyphBox.songH + pad));
+        textParticles = [];
+        pushScreenGlyphParticles(
+          mapGlyphPointsToScreen(
+            ranGlyphPoints,
+            introGlyphLayout.ranSrc,
+            glyphBox.ranX,
+            glyphBox.ranY,
+            glyphBox.ranW,
+            glyphBox.ranH
+          ),
+          'ran'
         );
-        blitGlyphInk(
-          octx,
-          songGlyphImg,
-          songDrawX,
-          introLayout.songTop,
-          introLayout.songW,
-          introLayout.songH,
-          particleDotInk,
-          introLayout.songB
+        pushScreenGlyphParticles(
+          mapGlyphPointsToScreen(
+            songGlyphPoints,
+            introGlyphLayout.songSrc,
+            glyphBox.songX,
+            glyphBox.songY,
+            glyphBox.songW,
+            glyphBox.songH
+          ),
+          'song'
         );
-        ranZone.x1 = ranDrawX - zonePad;
-        ranZone.x2 = ranDrawX + introLayout.ranW + zonePad;
-        ranZone.y1 = introLayout.ranTop - zonePad;
-        ranZone.y2 = introLayout.ranTop + introLayout.ranH + zonePad;
-        songZone.x1 = songDrawX - zonePad;
-        songZone.x2 = introSongX + zonePad;
-        songZone.y1 = introLayout.songTop - zonePad;
-        songZone.y2 = introLayout.songTop + introLayout.songH + zonePad;
-        x0 = Math.max(0, Math.floor(ranDrawX - pad));
-        x1 = Math.min(W, Math.ceil(introSongX + pad));
-        y0 = Math.max(0, Math.floor(introLayout.ranTop - pad));
-        y1 = Math.min(
-          H,
-          Math.ceil(introLayout.songTop + introLayout.songH + pad)
-        );
+        builtFromGlyphs = true;
       } else {
         octx.fillStyle = particleDotInk;
         octx.font = introMonoFont(rasterPx);
         octx.strokeStyle = particleDotInk;
-        paintIntroLine(octx, INTRO_LINE1, introRanX, cy, rasterPx);
+        paintIntroLine(octx, INTRO_LINE1, startX, cy, rasterPx);
         octx.textAlign = 'right';
-        paintIntroLine(octx, INTRO_LINE2, introSongX, line2Y, rasterPx);
+        paintIntroLine(octx, INTRO_LINE2, endX, line2Y, rasterPx);
         octx.textAlign = 'left';
+        zonePad = Math.round(rasterPx * 0.1);
         var ranW = octx.measureText(INTRO_LINE1).width;
         var songW = octx.measureText(INTRO_LINE2).width;
-        ranZone.x1 = introRanX - zonePad;
-        ranZone.x2 = introRanX + ranW + zonePad;
+        ranZone.x1 = startX - zonePad;
+        ranZone.x2 = startX + ranW + zonePad;
         ranZone.y1 = cy - rasterPx - zonePad;
         ranZone.y2 = cy + zonePad;
-        songZone.x1 = introSongX - songW - zonePad;
-        songZone.x2 = introSongX + zonePad;
+        songZone.x1 = endX - songW - zonePad;
+        songZone.x2 = endX + zonePad;
         songZone.y1 = line2Y - rasterPx - zonePad;
         songZone.y2 = line2Y + Math.round(rasterPx * 0.5) + zonePad;
-        x0 = Math.max(0, Math.floor(introRanX - pad));
-        x1 = Math.min(W, Math.ceil(introSongX + pad));
+        x0 = Math.max(0, Math.floor(startX - pad));
+        x1 = Math.min(W, Math.ceil(endX + pad));
         y0 = Math.max(0, Math.floor(cy - rasterPx - pad));
         y1 = Math.min(H, Math.ceil(line2Y + rasterPx * 0.45 + pad));
       }
@@ -1687,27 +1812,37 @@ function initTextParticles() {
       oneselfZone.y2 = -99998;
       if (portrait) portrait.style.opacity = '0';
     } else {
-      if (quoteLayout) {
-        refreshParticleInk();
-        blitGlyphInk(
-          octx,
-          becomingGlyphImg,
-          startX,
-          quoteLayout.top,
-          quoteLayout.w,
-          quoteLayout.h,
-          particleDotInk,
-          quoteLayout.b
+      if (quoteUseGlyphs && quoteGlyphLayout) {
+        var qBox = layoutQuoteGlyph(quoteGlyphLayout, startX, quoteTopPx);
+        var oz = mapQuoteOneselfZone(qBox);
+        if (oz) {
+          oneselfZone.x1 = oz.x1;
+          oneselfZone.x2 = oz.x2;
+          oneselfZone.y1 = oz.y1;
+          oneselfZone.y2 = oz.y2;
+        } else {
+          oneselfZone.x1 = -99999;
+          oneselfZone.y1 = -99999;
+          oneselfZone.x2 = -99998;
+          oneselfZone.y2 = -99998;
+        }
+        x0 = Math.max(0, Math.floor(qBox.x - pad));
+        x1 = Math.min(W, Math.ceil(qBox.x + qBox.w + pad));
+        y0 = Math.max(0, Math.floor(qBox.y - pad));
+        y1 = Math.min(H, Math.ceil(qBox.y + qBox.h + pad));
+        textParticles = [];
+        pushScreenGlyphParticles(
+          mapGlyphPointsToScreen(
+            quoteGlyphPoints,
+            quoteGlyphLayout.src,
+            qBox.x,
+            qBox.y,
+            qBox.w,
+            qBox.h
+          ),
+          null
         );
-        var lineSplitY = quoteLayout.top + Math.round(quoteLayout.h * 0.46);
-        oneselfZone.x1 = startX + Math.round(quoteLayout.w * 0.34);
-        oneselfZone.x2 = startX + quoteLayout.w - 6;
-        oneselfZone.y1 = quoteLayout.top;
-        oneselfZone.y2 = lineSplitY;
-        x0 = Math.max(0, Math.floor(startX - pad));
-        x1 = Math.min(W, Math.ceil(startX + quoteLayout.w + pad));
-        y0 = Math.max(0, Math.floor(quoteLayout.top - pad));
-        y1 = Math.min(H, Math.ceil(quoteLayout.top + quoteLayout.h + pad));
+        builtFromGlyphs = true;
       } else {
         octx.fillStyle = particleDotInk;
         octx.font = introMonoFont(QUOTE_FONT_SIZE);
@@ -1747,27 +1882,26 @@ function initTextParticles() {
         portrait.style.top = topPx + 'px';
         portrait.style.right = 'auto';
         portrait.style.transform = 'none';
+        portrait.style.opacity = '1';
       }
     }
 
     var iw = x1 - x0;
     var ih = y1 - y0;
-    var data = octx.getImageData(x0, y0, iw, ih).data;
-    var introTagSplitY =
-      phase === 'intro'
-        ? introLayout
-          ? introLayout.ranTop + introLayout.ranH + Math.round(introLayout.gap * 0.45)
-          : line2Y - Math.round(rasterPx * 0.28)
-        : 0;
-    var textSample = phase === 'quote' && quoteLayout ? 2 : SAMPLE;
-    textParticles = [];
-    for (var sx = 0; sx < iw; sx += textSample) {
-      for (var sy = 0; sy < ih; sy += textSample) {
-        var ii = (sy * iw + sx) * 4;
-        if (data[ii + 3] > 100) {
-          var pTag = null;
-          if (phase === 'intro') pTag = y0 + sy < introTagSplitY ? 'ran' : 'song';
-          textParticles.push(makeParticle(x0 + sx, y0 + sy, 'text', 1, pTag));
+    if (!builtFromGlyphs) {
+      var data = octx.getImageData(x0, y0, iw, ih).data;
+      textParticles = [];
+      for (var sx = 0; sx < iw; sx += SAMPLE) {
+        for (var sy = 0; sy < ih; sy += SAMPLE) {
+          var ii = (sy * iw + sx) * 4;
+          if (data[ii + 3] > 100) {
+            var pTag = null;
+            if (phase === 'intro') {
+              var introTagSplitY = line2Y - Math.round(rasterPx * 0.28);
+              pTag = y0 + sy < introTagSplitY ? 'ran' : 'song';
+            }
+            textParticles.push(makeParticle(x0 + sx, y0 + sy, 'text', 1, pTag));
+          }
         }
       }
     }
@@ -1786,8 +1920,8 @@ function initTextParticles() {
     if (panelHome) {
       var copyPad = SAMPLE * 3;
       if (phase === 'intro') {
-        var songBottomY = introLayout
-          ? Math.ceil(introLayout.songTop + introLayout.songH + copyPad)
+        var songBottomY = introUseGlyphs && introGlyphLayout
+          ? Math.ceil(introTopPx + introGlyphLayout.ranH + introGlyphLayout.gap + introGlyphLayout.songH + copyPad)
           : Math.ceil(line2Y + rasterPx * 0.45 + copyPad);
         navTopPx =
           songBottomY + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
@@ -1795,26 +1929,31 @@ function initTextParticles() {
         panelHome.style.setProperty('--home-nav-top', Math.round(navTopPx) + 'px');
         panelHome.style.setProperty(
           '--home-nav-right',
-          Math.round(W - introSongX) + 'px'
+          Math.round(W - endXBand) + 'px'
         );
         panelHome.style.removeProperty('--home-nav-left');
         panelHome.style.removeProperty('--home-nav-width');
       } else {
-        var quoteBottomY = quoteLayout
-          ? Math.ceil(quoteLayout.top + quoteLayout.h + copyPad)
-          : Math.ceil(line2Y + QUOTE_FONT_SIZE * 0.45 + copyPad);
-        navTopPx = quoteLayout
-          ? quoteBottomY + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP
-          : quoteBottomY + QUOTE_FONT_SIZE * (HOME_NAV_MENU_LINE_GAP - 1);
-        var quoteRightPx = quoteLayout
-          ? startX + quoteLayout.w
-          : startX +
-            Math.max(
-              octx.measureText(LINE1).width,
-              octx.measureText(LINE2).width
-            );
-        if (!quoteLayout) {
+        var quoteBottomY;
+        var quoteRightPx;
+        if (quoteUseGlyphs && quoteGlyphLayout) {
+          quoteBottomY = Math.ceil(quoteTopPx + quoteGlyphLayout.h + copyPad);
+          quoteRightPx = startX + quoteGlyphLayout.w;
+          navTopPx =
+            quoteBottomY +
+            Math.round(quoteGlyphLayout.h * 0.08) +
+            HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
+        } else {
           octx.font = introMonoFont(QUOTE_FONT_SIZE);
+          var quoteTextW = Math.max(
+            octx.measureText(LINE1).width,
+            octx.measureText(LINE2).width
+          );
+          quoteBottomY = Math.ceil(line2Y + QUOTE_FONT_SIZE * 0.45 + copyPad);
+          navTopPx =
+            quoteBottomY +
+            QUOTE_FONT_SIZE * (HOME_NAV_MENU_LINE_GAP - 1);
+          quoteRightPx = startX + quoteTextW;
         }
         panelHome.setAttribute('data-home-nav-align', 'right');
         panelHome.style.setProperty('--home-nav-top', Math.round(navTopPx) + 'px');
@@ -1962,8 +2101,8 @@ function initTextParticles() {
     }
 
     var isDarkTheme = isHomeDarkTheme();
-    var textAlphaBase = isDarkTheme ? 0.88 : 0.88;
-    var textAlphaRange = isDarkTheme ? 0.12 : 0.12;
+    var textAlphaBase = isDarkTheme ? 0.88 : 0.84;
+    var textAlphaRange = isDarkTheme ? 0.12 : 0.1;
 
     function textAlphaMult(p, alpha) {
       var a = alpha;
@@ -2001,7 +2140,7 @@ function initTextParticles() {
     });
 
     var drawTextDot =
-      HOME_HERO_PHASE === 'quote' && becomingGlyphReady ? 5 : DOT;
+      HOME_HERO_PHASE === 'quote' && quoteGlyphsUsable() ? 5 : DOT;
 
     drawParticleLayer(textParticles, {
       ink: particleDotInk,
@@ -2053,7 +2192,6 @@ function initTextParticles() {
     if (introHit === 'song') hoverSong = true;
     if (introHit) container.setAttribute('data-hover-zone', introHit);
     else container.removeAttribute('data-hover-zone');
-    tryRevealHomeNav(mx, my);
   });
   container.addEventListener('mouseleave', function() {
     mouseActive = false;
@@ -2131,15 +2269,6 @@ function initTextParticles() {
     raf = requestAnimationFrame(draw);
   };
 
-  HOME_NAV_CANCEL_REVEAL = function () {
-    if (navRevealTimer) {
-      clearTimeout(navRevealTimer);
-      navRevealTimer = null;
-    }
-    navRevealDone = false;
-    navRevealAnchor = null;
-  };
-
   buildParticles();
   HOME_HERO_RESUME_DRAW();
 
@@ -2163,7 +2292,6 @@ function showSection(id) {
 
   var panelHome = document.getElementById('panel-home');
   if (panelHome && id !== 'home') {
-    if (typeof HOME_NAV_CANCEL_REVEAL === 'function') HOME_NAV_CANCEL_REVEAL();
     panelHome.classList.remove('home-hero-morphing', 'home-nav-reveal', 'home-hero-hint-on');
   }
 
