@@ -89,21 +89,23 @@ var BUILDER_CARD_ART = {
     '<text x="130" y="124" font-size="9" fill="#c44" font-weight="600">FAIL</text>' +
     '</svg>',
   playce:
-    '<svg class="builder-card-art__svg" viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-    '<rect x="72" y="32" width="48" height="56" fill="currentColor" opacity="0.12"/>' +
-    '<rect x="136" y="20" width="48" height="68" fill="currentColor" opacity="0.18"/>' +
-    '<rect x="200" y="40" width="48" height="48" fill="currentColor" opacity="0.1"/>' +
-    '<text x="96" y="108" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.5">Lagos</text>' +
-    '<text x="160" y="108" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.5">Nazaré</text>' +
-    '<text x="88" y="128" text-anchor="middle" font-size="8" fill="#3d8f6e">Novice</text>' +
-    '<text x="160" y="128" text-anchor="middle" font-size="8" fill="#c97">Inter.</text>' +
-    '<text x="224" y="128" text-anchor="middle" font-size="8" fill="#c44">Pro</text>' +
+    '<svg class="builder-card-art__svg builder-card-art__svg--playce" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<rect width="640" height="360" fill="#141414"/>' +
+    '<g transform="translate(-30, 0)">' +
+    '<rect x="148" y="171" width="118" height="118" fill="#222"/>' +
+    '<rect x="290" y="145" width="144" height="144" fill="#2e2e2e"/>' +
+    '<rect x="448" y="185" width="104" height="104" fill="#383838"/>' +
+    '<text x="207" y="308" font-family="\'IBM Plex Mono\', monospace" font-size="11" fill="#4ade80" text-anchor="middle" letter-spacing="0.06em">Beginner</text>' +
+    '<text x="362" y="308" font-family="\'IBM Plex Mono\', monospace" font-size="11" fill="#22d3ee" text-anchor="middle" letter-spacing="0.06em">Inter.</text>' +
+    '<text x="500" y="308" font-family="\'IBM Plex Mono\', monospace" font-size="11" fill="#f87171" text-anchor="middle" letter-spacing="0.06em">Pro</text>' +
+    '</g>' +
     '</svg>',
 };
 
 var PROJECTS = [
   {
     num: '01',
+    slug: 'ai_governance_dashboard',
     title: 'AI Governance Dashboard',
     category: 'build',
     featured: true,
@@ -114,7 +116,7 @@ var PROJECTS = [
     cardDesc:
       'Forensic bias audit interface. EU AI Act compliance translated into deterministic engineering behaviour.',
     tags: ['Ethical AI', 'EU AI Act', 'Flask', 'Python'],
-    tech: 'React · Tailwind CSS · Flask · Python (SciPy / Pandas)',
+    tech: 'React · Tailwind CSS · Flask · Python (SciPy / Pandas) · Cursor · Replit · Gemini',
     desc:
       'A forensic audit interface for high-risk algorithmic pricing: making automated pricing decisions observable, accountable, and regulator-ready when the underlying model is a proprietary black box.',
     heroVideo: 'assets/ai-governance-dashboard.mp4',
@@ -123,6 +125,7 @@ var PROJECTS = [
   },
   {
     num: '02',
+    slug: 'playce',
     title: 'PLAYCE — Sports Travel Decision',
     category: 'build',
     featured: true,
@@ -131,9 +134,9 @@ var PROJECTS = [
     type: 'Independent Research & Build',
     year: '2026',
     cardDesc:
-      'One recommendation, fully reasoned. Sport as the primary variable. Solo travel signals built in.',
-    tags: ['Next.js', 'Grok API', 'Zod', 'Tailwind v4'],
-    tech: 'Next.js · Grok API · Zod · Tailwind CSS v4 · pnpm · Cursor',
+      'A planning tool for people who travel around sports.',
+    tags: ['Next.js', 'Groq', 'Zod', 'Tailwind v4'],
+    tech: 'Next.js · Groq · Vercel · Cursor · Gemini · Claude · Canva · Solo build · 3 weeks',
     desc:
       'Intent-first AI travel planner: sport as the organising variable — destinations, itineraries, and solo traveller signals in one coherent flow.',
     hero: 'https://picsum.photos/seed/proj2h/1200/675',
@@ -141,117 +144,42 @@ var PROJECTS = [
   },
   {
     num: '03',
+    slug: 'ai_visual_experiments',
     title: 'AI Visual Experiments',
     category: 'build',
-    year: '2025',
-    cardDesc: 'Generative and AI design at the intersection of constraint, chance, and visual systems.',
+    year: '2026',
+    comingSoon: true,
+    cardDesc: 'Coming soon.',
     tags: ['Midjourney', 'ComfyUI', 'p5.js'],
     type: 'Personal / Ongoing',
-    tech: 'Midjourney · ComfyUI · p5.js',
-    desc: 'Generative and AI design, where they intersect.',
-    hero: 'https://picsum.photos/seed/proj4h/1200/675',
-    sections: [
-      {
-        type: 'text',
-        content:
-          'An ongoing personal laboratory for exploring what generative AI tools produce when given contradictory instructions, broken grids, and impossible constraints.',
-      },
-      {
-        type: 'image',
-        src: 'https://picsum.photos/seed/proj4a/1000/560',
-        caption: 'Series 01 — visual interference studies',
-      },
-    ],
+    desc: 'Coming soon.',
+    sections: [],
   },
   {
     num: '04',
+    slug: 'brand_poster_design',
     title: 'Brand & Poster Design — Selected',
     category: 'design',
-    year: '2024',
-    cardDesc: 'Poster and identity work across cultural, editorial, and campaign contexts.',
+    year: '2026',
+    comingSoon: true,
+    cardDesc: 'Coming soon.',
     tags: ['Branding', 'Poster', 'Typography'],
     type: 'Design',
-    desc: 'Selected brand and poster design work.',
-    hero: 'https://picsum.photos/seed/proj-brand/1200/675',
-    sections: [
-      {
-        type: 'text',
-        content:
-          'A curated set of brand and poster projects — typography-led layouts, campaign visuals, and identity systems built for print and screen.',
-      },
-    ],
+    desc: 'Coming soon.',
+    sections: [],
   },
   {
     num: '05',
-    title: 'Confidence in Every Drop — Narta',
-    category: 'strategy',
-    year: '2024',
-    cardDesc: 'Brand positioning and go-to-market strategy for a consumer skincare launch.',
-    tags: ['Brand', 'GTM', 'Consumer'],
-    type: 'Strategy',
-    desc: 'Brand positioning and launch strategy for Narta.',
-    hero: 'https://picsum.photos/seed/proj-narta/1200/675',
-    sections: [
-      {
-        type: 'text',
-        content:
-          'End-to-end brand narrative, channel strategy, and campaign architecture for a confidence-led skincare proposition.',
-      },
-    ],
-  },
-  {
-    num: '06',
+    slug: 'loreal_paris_campaign_strategy',
     title: "L'Oréal Paris — Campaign Strategy",
     category: 'strategy',
-    year: '2024',
-    cardDesc: 'Regional campaign strategy and creative direction for a beauty brand portfolio.',
+    year: '2026',
+    comingSoon: true,
+    cardDesc: 'Coming soon.',
     tags: ['Beauty', 'Campaign', 'Regional'],
     type: 'Strategy',
-    desc: "Campaign strategy for L'Oréal Paris.",
-    hero: 'https://picsum.photos/seed/proj-loreal/1200/675',
-    sections: [
-      {
-        type: 'text',
-        content:
-          'Portfolio-level campaign planning across channels — balancing brand equity, local market nuance, and measurable conversion goals.',
-      },
-    ],
-  },
-  {
-    num: '07',
-    title: 'Circadian Health — Open Innovation',
-    category: 'field',
-    year: '2025',
-    cardDesc: 'Open innovation fieldwork linking sleep science, product concepts, and partner ecosystems.',
-    tags: ['Health', 'Innovation', 'Research'],
-    type: 'Field',
-    desc: 'Open innovation programme in circadian health.',
-    hero: 'https://picsum.photos/seed/proj-circadian/1200/675',
-    sections: [
-      {
-        type: 'text',
-        content:
-          'Field research and partner scouting to translate circadian science into viable product and service concepts.',
-      },
-    ],
-  },
-  {
-    num: '08',
-    title: 'Digital Transformation — Ajisen Group',
-    category: 'field',
-    year: '2023',
-    cardDesc: 'Enterprise digital transformation across operations, customer touchpoints, and internal tooling.',
-    tags: ['Enterprise', 'Operations', 'F&B'],
-    type: 'Field',
-    desc: 'Digital transformation delivery for Ajisen Group.',
-    hero: 'https://picsum.photos/seed/proj-ajisen/1200/675',
-    sections: [
-      {
-        type: 'text',
-        content:
-          'Multi-market digital transformation — process redesign, platform rollout, and change management across restaurant operations.',
-      },
-    ],
+    desc: 'Coming soon.',
+    sections: [],
   },
 ];
 
@@ -294,18 +222,18 @@ var THOUGHTS = [
     ]
   },
   {
-    num:'02', date:'2025.04', cat:'ART & TECH',
+    num:'02', date:'2026', cat:'ART & TECH',
     title:'Calculating Empires and the Feminist Gap in Data Systems',
     desc:'On the MIT exhibition and what gets counted, and what does not.',
     body:[
-      'The Calculating Empires exhibition at MIT made one thing very clear: data systems are never neutral. They are always built by someone, for someone, with a particular idea of who counts.',
+      'The Calculating Empires exhibition made one thing very clear: data systems are never neutral. They are always built by someone, for someone, with a particular idea of who counts.',
       'The exhibition traces the history of information systems from colonial record-keeping to algorithmic governance. What connects them is not the technology — it is the assumption that the world can be simplified into a table.',
       'The feminist critique here is not simply that women are underrepresented in the data. It is that the categories used to organise data were designed without considering the lives of women at all. The gap is structural.',
       'I left thinking about what it would mean to build a data system that began with the question: whose life does this model leave out?',
     ]
   },
   {
-    num:'03', date:'2025.03', cat:'PM & BUILD',
+    num:'03', date:'2026', cat:'PM & BUILD',
     title:'What Vibe Coding Taught Me About Product Thinking',
     desc:'Moving fast without a spec is a skill. So is knowing when to stop.',
     body:[
@@ -316,7 +244,7 @@ var THOUGHTS = [
     ]
   },
   {
-    num:'04', date:'2025.02', cat:'TRAVEL & ART',
+    num:'04', date:'2026', cat:'TRAVEL & ART',
     title:'Berlin: Yoko Ono, the Memorial, and Absence as Design',
     desc:'Three things in Berlin that made me sit down and think about nothing.',
     body:[
@@ -339,6 +267,26 @@ var THOUGHTS = [
   },
 ];
 
+var THINKER_VISIBLE_NUMS = ['02', '03', '04'];
+
+function getVisibleThoughtIndices() {
+  var out = [];
+  THOUGHTS.forEach(function (t, i) {
+    if (THINKER_VISIBLE_NUMS.indexOf(t.num) >= 0) out.push(i);
+  });
+  return out;
+}
+
+function isThoughtVisible(i) {
+  return THINKER_VISIBLE_NUMS.indexOf(THOUGHTS[i].num) >= 0;
+}
+
+function getVisibleThoughtPosition(i) {
+  var visible = getVisibleThoughtIndices();
+  var pos = visible.indexOf(i);
+  return pos >= 0 ? pos + 1 : 0;
+}
+
 /* ────────────────────────────────────────────────────
    STATE
    ──────────────────────────────────────────────────── */
@@ -347,7 +295,194 @@ var activeView    = 'grid';
 var activeProj    = 0;
 var builderFilter = 'all';
 var builderOnDetail = false;
-var activeThought = 0;
+var activeThought = 1;
+var activeSubRoute = null;
+var activeGameIndex = -1;
+
+var ROUTE_SECTIONS = ['home', 'observer', 'builder', 'player', 'writing', 'about'];
+var ALL_ROUTE_SECTIONS = ROUTE_SECTIONS.concat(['404']);
+
+var SLUG_TO_SECTION = {
+  observer: 'observer',
+  builder: 'builder',
+  player: 'player',
+  thinker: 'writing',
+  writing: 'writing',
+  about: 'about'
+};
+
+var SECTION_TO_SLUG = {
+  observer: 'observer',
+  builder: 'builder',
+  player: 'player',
+  writing: 'thinker',
+  about: 'about'
+};
+
+function slugifyRoutePart(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[''´`]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_+/g, '_');
+}
+
+function ensureRouteSlugs() {
+  ITEMS.forEach(function (item) {
+    if (!item.slug) item.slug = slugifyRoutePart(item.title);
+  });
+  PROJECTS.forEach(function (proj) {
+    if (!proj.slug) proj.slug = slugifyRoutePart(proj.title);
+  });
+  GAMES.forEach(function (game) {
+    if (!game.slug) game.slug = slugifyRoutePart(game.kind || game.title);
+  });
+  THOUGHTS.forEach(function (thought) {
+    if (!thought.slug) thought.slug = slugifyRoutePart(thought.title);
+  });
+}
+
+function slugToSection(slug) {
+  if (!slug) return 'home';
+  return SLUG_TO_SECTION[String(slug).toLowerCase()] || null;
+}
+
+function sectionSlug(id) {
+  return SECTION_TO_SLUG[id] || id;
+}
+
+function getRouteBase() {
+  var meta = document.querySelector('meta[name="site-base"]');
+  if (meta && meta.content) return String(meta.content).replace(/\/$/, '');
+  return '';
+}
+
+function parseRoute(pathname) {
+  var base = getRouteBase();
+  var path = String(pathname || '/');
+  if (base && path.indexOf(base) === 0) path = path.slice(base.length) || '/';
+  path = path.replace(/\/+$/, '') || '/';
+  if (path === '/') return { section: 'home', sub: null };
+  var segments = path.split('/').filter(Boolean);
+  var section = slugToSection(segments[0]);
+  if (!section) return { section: '404', sub: null, rawPath: path };
+  return {
+    section: section,
+    sub: segments.length > 1 ? segments.slice(1).join('/') : null,
+  };
+}
+
+function pathToSection(pathname) {
+  return validateRoute(parseRoute(pathname)).section;
+}
+
+function hashToSection(hash) {
+  var raw = String(hash || '').replace(/^#/, '').toLowerCase();
+  if (!raw || raw === 'home') return 'home';
+  return slugToSection(raw) || '404';
+}
+
+function routePath(section, sub) {
+  var base = getRouteBase();
+  if (!section || section === 'home' || section === '404') return base ? base + '/' : '/';
+  var path = (base || '') + '/' + sectionSlug(section);
+  if (sub) path += '/' + sub;
+  return path;
+}
+
+function validateRoute(route) {
+  if (!route || route.section === 'home' || route.section === '404') return route;
+  if (ROUTE_SECTIONS.indexOf(route.section) < 0) {
+    return { section: '404', sub: null, rawPath: route.rawPath || window.location.pathname };
+  }
+  if (!route.sub) return route;
+  var ok = false;
+  if (route.section === 'builder') ok = findProjectIndexBySlug(route.sub) >= 0;
+  else if (route.section === 'writing') {
+    var ti = findThoughtIndexBySlug(route.sub);
+    ok = ti >= 0 && isThoughtVisible(ti);
+  } else if (route.section === 'player') ok = findGameIndexBySlug(route.sub) >= 0;
+  else if (route.section === 'observer') ok = findObserverIndexBySlug(route.sub) >= 0;
+  else ok = true;
+  if (!ok) return { section: '404', sub: null, rawPath: routePath(route.section, route.sub) };
+  return route;
+}
+
+function resolveInitialRoute() {
+  return validateRoute(parseRoute(window.location.pathname));
+}
+
+function renderNotFoundPage(path) {
+  var pathEl = document.getElementById('not-found-path');
+  if (pathEl) pathEl.textContent = path || window.location.pathname;
+}
+
+function syncRoute(section, sub, replace) {
+  var path = routePath(section, sub || null);
+  var current = window.location.pathname;
+  if (current === path) {
+    activeSubRoute = sub || null;
+    return;
+  }
+  var state = { section: section, sub: sub || null };
+  activeSubRoute = sub || null;
+  if (replace) history.replaceState(state, '', path);
+  else history.pushState(state, '', path);
+}
+
+function syncSectionRoute(id, replace) {
+  syncRoute(id, null, replace);
+}
+
+function findProjectIndexBySlug(slug) {
+  if (!slug) return -1;
+  var lower = String(slug).toLowerCase();
+  for (var i = 0; i < PROJECTS.length; i++) {
+    if (PROJECTS[i].slug === lower) return i;
+  }
+  return -1;
+}
+
+function findThoughtIndexBySlug(slug) {
+  if (!slug) return -1;
+  var lower = String(slug).toLowerCase();
+  for (var i = 0; i < THOUGHTS.length; i++) {
+    if (THOUGHTS[i].slug === lower) return i;
+  }
+  return -1;
+}
+
+function findGameIndexBySlug(slug) {
+  if (!slug) return -1;
+  var lower = String(slug).toLowerCase();
+  for (var i = 0; i < GAMES.length; i++) {
+    if (GAMES[i].slug === lower) return i;
+  }
+  return -1;
+}
+
+function findObserverIndexBySlug(slug) {
+  if (!slug) return -1;
+  var lower = String(slug).toLowerCase();
+  for (var i = 0; i < ITEMS.length; i++) {
+    if (ITEMS[i].slug === lower) return i;
+  }
+  return -1;
+}
+
+function migrateLegacyHashRoute() {
+  var hash = window.location.hash;
+  if (!hash || hash.length <= 1) return;
+  var id = hashToSection(hash);
+  history.replaceState({ section: id, sub: null }, '', routePath(id, null));
+}
+
+function migrateLegacyPathRoute() {
+  var path = String(window.location.pathname || '/').replace(/\/+$/, '') || '/';
+  if (path === '/writing') history.replaceState({ section: 'writing', sub: null }, '', routePath('writing', null));
+}
 
 /* ────────────────────────────────────────────────────
    CURSOR — two equal dots, cursor2 lags to create
@@ -1052,8 +1187,47 @@ function initTextParticles() {
   var songGlyphPoints = null;
   var quoteGlyphPoints = null;
   var HOME_GLYPH_ASSET_V = '6';
+  var homeHeroBooted = false;
+  var homeNavRevealed = false;
+  var homeBootFallbackTimer = null;
+
+  function markHomeHeroReady() {
+    if (homeHeroBooted) return;
+    homeHeroBooted = true;
+    if (homeBootFallbackTimer) {
+      clearTimeout(homeBootFallbackTimer);
+      homeBootFallbackTimer = null;
+    }
+    var panelHome = document.getElementById('panel-home');
+    document.documentElement.classList.add('home-ready');
+    document.documentElement.classList.remove('home-boot');
+    if (panelHome) panelHome.classList.add('home-hero-ready');
+  }
+
+  function bootHomeHero(force) {
+    if (homeHeroBooted && !force) return;
+    if (
+      !force &&
+      HOME_HERO_PHASE === 'intro' &&
+      !introGlyphsUsable()
+    ) {
+      return;
+    }
+    buildParticles();
+    if (typeof HOME_HERO_RESUME_DRAW === 'function') HOME_HERO_RESUME_DRAW();
+    markHomeHeroReady();
+  }
+
+  function scheduleHomeBootFallback() {
+    if (homeBootFallbackTimer) return;
+    homeBootFallbackTimer = setTimeout(function () {
+      if (!homeHeroBooted) bootHomeHero(true);
+    }, 3500);
+  }
+  var INTRO_GLYPH_MAX_VH = 0.52;
   var QUOTE_GLYPH_MAX_VH = 0.97;
   var QUOTE_GLYPH_MAX_VW = 0.94;
+  var HERO_NAV_GAP_RATIO = 0.07;
 
   var LINE1 = 'Becoming oneself';
   var LINE2 = 'is a long experiment.';
@@ -1340,16 +1514,15 @@ function initTextParticles() {
     }
     homeGlyphsLoaded += 1;
     if (
-      homeGlyphsLoaded >= HOME_GLYPH_COUNT &&
       ranGlyphBounds &&
       songGlyphBounds &&
       quoteGlyphBounds &&
       ranGlyphPoints &&
       songGlyphPoints &&
-      quoteGlyphPoints &&
-      typeof HOME_HERO_PARTICLE_REBUILD === 'function'
+      quoteGlyphPoints
     ) {
-      HOME_HERO_PARTICLE_REBUILD();
+      if (!homeHeroBooted) bootHomeHero(false);
+      else if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') HOME_HERO_PARTICLE_REBUILD();
     }
   }
 
@@ -1359,6 +1532,9 @@ function initTextParticles() {
   ranGlyphImg.src = 'photos/home-ran-glyph.png?v=' + HOME_GLYPH_ASSET_V;
   songGlyphImg.src = 'photos/home-song-glyph.png?v=' + HOME_GLYPH_ASSET_V;
   quoteGlyphImg.src = 'photos/home-quote-glyph.png?v=' + HOME_GLYPH_ASSET_V;
+  if (ranGlyphImg.complete && ranGlyphImg.naturalWidth) onHomeGlyphLoad();
+  if (songGlyphImg.complete && songGlyphImg.naturalWidth) onHomeGlyphLoad();
+  if (quoteGlyphImg.complete && quoteGlyphImg.naturalWidth) onHomeGlyphLoad();
 
   function isHomeDarkTheme() {
     return document.documentElement.dataset.theme === 'dark';
@@ -1414,9 +1590,11 @@ function initTextParticles() {
     if (!panelHome) return;
     panelHome.setAttribute('data-home-hero-phase', HOME_HERO_PHASE);
     panelHome.classList.add('home-hero-hint-on');
-    panelHome.classList.remove('home-nav-reveal');
-    void panelHome.offsetWidth;
-    panelHome.classList.add('home-nav-reveal');
+    if (!homeNavRevealed) {
+      homeNavRevealed = true;
+      void panelHome.offsetWidth;
+      panelHome.classList.add('home-nav-reveal');
+    }
   }
 
   function beginHeroMorph() {
@@ -1539,6 +1717,20 @@ function initTextParticles() {
     );
   }
 
+  function heroGlyphFitWidth(viewW, band, padX) {
+    return band.centered
+      ? Math.min(Math.round(viewW * QUOTE_GLYPH_MAX_VW), viewW - padX * 2)
+      : band.width;
+  }
+
+  function heroStackTopPx(viewH, padTop, blockH) {
+    var navGap =
+      Math.round(blockH * HERO_NAV_GAP_RATIO) + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
+    var stackH = blockH + navGap + HOME_NAV_RESERVE;
+    var top = Math.round((viewH - stackH) / 2);
+    return top < padTop ? padTop : top;
+  }
+
   function fitQuoteGlyphLayout(maxW, maxH) {
     var b = quoteGlyphBounds;
     var scale = Math.min(maxW / b.w, maxH / b.h);
@@ -1550,11 +1742,11 @@ function initTextParticles() {
     };
   }
 
-  function layoutIntroGlyphs(layout, startX, endX, introTop) {
-    var ranX = startX;
-    var ranY = introTop;
-    var songX = endX - layout.songW;
-    var songY = introTop + layout.ranH + layout.gap;
+  function layoutIntroGlyphs(layout, boxLeft, boxTop, boxW) {
+    var ranX = boxLeft;
+    var ranY = boxTop;
+    var songX = boxLeft + boxW - layout.songW;
+    var songY = boxTop + layout.ranH + layout.gap;
     return {
       ranX: ranX,
       ranY: ranY,
@@ -1677,13 +1869,20 @@ function initTextParticles() {
     var quoteUseGlyphs = false;
     var quoteGlyphLayout = null;
     var quoteTopPx = 0;
+    var introBlockW = 0;
+    var introRightPx = endXBand;
     if (phase === 'intro') {
-      introTopPx = Math.round(H * 0.1) + Math.min(padY, 28);
       var introFitW = contentW;
-      var introMaxBlockH = Math.round(H * 0.62) - introTopPx;
+      var introMaxBlockH = Math.round(H * INTRO_GLYPH_MAX_VH);
       introUseGlyphs = introGlyphsUsable();
       if (introUseGlyphs) {
         introGlyphLayout = fitIntroGlyphLayout(introFitW, introMaxBlockH);
+        introBlockW = contentW;
+        var introBlockH =
+          introGlyphLayout.ranH + introGlyphLayout.gap + introGlyphLayout.songH;
+        introTopPx = heroStackTopPx(H, padY, introBlockH);
+        startX = band.left;
+        introRightPx = endXBand;
         cy = introTopPx + introGlyphLayout.ranH;
         line2Y = introTopPx + introGlyphLayout.ranH + introGlyphLayout.gap + introGlyphLayout.songH;
         rasterPx = Math.round(introGlyphLayout.ranH);
@@ -1691,23 +1890,26 @@ function initTextParticles() {
         rasterPx = fitIntroFontSize(octx, introFitW, introMaxBlockH);
         octx.font = introMonoFont(rasterPx);
         var introGap = Math.round(rasterPx * INTRO_LINE_GAP_RATIO);
+        var introBlockHFont = rasterPx + introGap + Math.round(rasterPx * 0.92);
+        introTopPx = heroStackTopPx(H, padY, introBlockHFont);
+        introBlockW = contentW;
+        startX = band.left;
+        introRightPx = endXBand;
         cy = introTopPx + rasterPx;
         line2Y = cy + introGap + Math.round(rasterPx * 0.92);
       }
     } else {
       quoteUseGlyphs = quoteGlyphsUsable();
       if (quoteUseGlyphs) {
-        var quoteFitW = band.centered
-          ? Math.min(Math.round(W * QUOTE_GLYPH_MAX_VW), W - padX * 2)
-          : contentW;
+        var quoteFitW = heroGlyphFitWidth(W, band, padX);
         quoteGlyphLayout = fitQuoteGlyphLayout(quoteFitW, Math.round(H * QUOTE_GLYPH_MAX_VH));
-        var quoteNavGap = Math.round(quoteGlyphLayout.h * 0.07) + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
-        var quoteStackH = quoteGlyphLayout.h + quoteNavGap + HOME_NAV_RESERVE;
-        quoteTopPx = Math.round((H - quoteStackH) / 2);
-        if (quoteTopPx < padY) quoteTopPx = padY;
+        introBlockW = quoteGlyphLayout.w;
+        introTopPx = heroStackTopPx(H, padY, quoteGlyphLayout.h);
+        quoteTopPx = introTopPx;
         startX = band.centered
           ? band.left + Math.max(0, Math.round((contentW - quoteGlyphLayout.w) / 2))
           : band.left;
+        introRightPx = startX + quoteGlyphLayout.w;
         cy = quoteTopPx + quoteGlyphLayout.h;
         line2Y = cy;
         rasterPx = Math.round(quoteGlyphLayout.h * 0.45);
@@ -1719,15 +1921,14 @@ function initTextParticles() {
           octx.measureText(LINE2).width
         );
         var quoteBlockH = QUOTE_FONT_SIZE + quoteLineLead + QUOTE_FONT_SIZE;
-        var quoteNavGapFont = QUOTE_FONT_SIZE * HOME_NAV_MENU_LINE_GAP;
-        var quoteStackHFont = quoteBlockH + quoteNavGapFont + HOME_NAV_RESERVE;
-        var quoteBlockTop = Math.round((H - quoteStackHFont) / 2);
-        if (quoteBlockTop < padY) quoteBlockTop = padY;
-        cy = quoteBlockTop + QUOTE_FONT_SIZE;
+        quoteTopPx = heroStackTopPx(H, padY, quoteBlockH);
+        introBlockW = quoteTextW;
+        cy = quoteTopPx + QUOTE_FONT_SIZE;
         line2Y = cy + QUOTE_FONT_SIZE + quoteLineLead;
         startX = band.centered
           ? band.left + Math.max(0, Math.round((contentW - quoteTextW) / 2))
           : band.left;
+        introRightPx = startX + quoteTextW;
       }
     }
 
@@ -1744,7 +1945,7 @@ function initTextParticles() {
       var endX = endXBand;
       var zonePad;
       if (introUseGlyphs && introGlyphLayout) {
-        var glyphBox = layoutIntroGlyphs(introGlyphLayout, startX, endX, introTopPx);
+        var glyphBox = layoutIntroGlyphs(introGlyphLayout, startX, introTopPx, introBlockW);
         zonePad = Math.round(Math.min(glyphBox.ranH, glyphBox.songH) * 0.08);
         ranZone.x1 = glyphBox.ranX - zonePad;
         ranZone.x2 = glyphBox.ranX + glyphBox.ranW + zonePad;
@@ -1923,13 +2124,18 @@ function initTextParticles() {
         var songBottomY = introUseGlyphs && introGlyphLayout
           ? Math.ceil(introTopPx + introGlyphLayout.ranH + introGlyphLayout.gap + introGlyphLayout.songH + copyPad)
           : Math.ceil(line2Y + rasterPx * 0.45 + copyPad);
+        var introNavBlockH = introUseGlyphs && introGlyphLayout
+          ? introGlyphLayout.ranH + introGlyphLayout.gap + introGlyphLayout.songH
+          : rasterPx + Math.round(rasterPx * INTRO_LINE_GAP_RATIO) + Math.round(rasterPx * 0.92);
         navTopPx =
-          songBottomY + HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
+          songBottomY +
+          Math.round(introNavBlockH * HERO_NAV_GAP_RATIO) +
+          HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
         panelHome.setAttribute('data-home-nav-align', 'right');
         panelHome.style.setProperty('--home-nav-top', Math.round(navTopPx) + 'px');
         panelHome.style.setProperty(
           '--home-nav-right',
-          Math.round(W - endXBand) + 'px'
+          Math.round(W - introRightPx) + 'px'
         );
         panelHome.style.removeProperty('--home-nav-left');
         panelHome.style.removeProperty('--home-nav-width');
@@ -1941,11 +2147,11 @@ function initTextParticles() {
           quoteRightPx = startX + quoteGlyphLayout.w;
           navTopPx =
             quoteBottomY +
-            Math.round(quoteGlyphLayout.h * 0.08) +
+            Math.round(quoteGlyphLayout.h * HERO_NAV_GAP_RATIO) +
             HOME_NAV_MENU_LINE_PX * HOME_NAV_MENU_LINE_GAP;
         } else {
           octx.font = introMonoFont(QUOTE_FONT_SIZE);
-          var quoteTextW = Math.max(
+          var quoteTextWNav = Math.max(
             octx.measureText(LINE1).width,
             octx.measureText(LINE2).width
           );
@@ -1953,13 +2159,13 @@ function initTextParticles() {
           navTopPx =
             quoteBottomY +
             QUOTE_FONT_SIZE * (HOME_NAV_MENU_LINE_GAP - 1);
-          quoteRightPx = startX + quoteTextW;
+          quoteRightPx = startX + quoteTextWNav;
         }
         panelHome.setAttribute('data-home-nav-align', 'right');
         panelHome.style.setProperty('--home-nav-top', Math.round(navTopPx) + 'px');
         panelHome.style.setProperty(
           '--home-nav-right',
-          Math.round(W - quoteRightPx) + 'px'
+          Math.round(W - introRightPx) + 'px'
         );
         panelHome.style.removeProperty('--home-nav-left');
         panelHome.style.removeProperty('--home-nav-width');
@@ -2256,6 +2462,7 @@ function initTextParticles() {
   });
 
   HOME_HERO_PARTICLE_REBUILD = buildParticles;
+
   HOME_HERO_STOP_DRAW = function () {
     if (raf != null) {
       cancelAnimationFrame(raf);
@@ -2269,8 +2476,7 @@ function initTextParticles() {
     raf = requestAnimationFrame(draw);
   };
 
-  buildParticles();
-  HOME_HERO_RESUME_DRAW();
+  scheduleHomeBootFallback();
 
   var resizeTimer;
   window.addEventListener('resize', function() {
@@ -2284,7 +2490,47 @@ function initTextParticles() {
 /* ────────────────────────────────────────────────────
    SECTION NAVIGATION
    ──────────────────────────────────────────────────── */
-function showSection(id) {
+function applySubRoute(section, sub, opts) {
+  opts = opts || {};
+  if (!sub) {
+    if (section === 'builder' && builderOnDetail) closeBuilderDetail({ skipRoute: true });
+    if (section === 'player' && activeGameIndex >= 0) closeGameFullscreen({ skipRoute: true });
+    if (section === 'observer' && lbState !== 0) closeLightbox({ skipRoute: true });
+    activeSubRoute = null;
+    return;
+  }
+
+  activeSubRoute = sub;
+  if (section === 'builder') {
+    var pi = findProjectIndexBySlug(sub);
+    if (pi >= 0) openBuilderProject(pi, { skipRoute: true, force: !!opts.force });
+    else showSection('404', { skipRoute: true, force: true, notFoundPath: window.location.pathname });
+  } else if (section === 'writing') {
+    var ti = findThoughtIndexBySlug(sub);
+    if (ti >= 0 && isThoughtVisible(ti)) setActiveThought(ti, { skipRoute: true });
+    else showSection('404', { skipRoute: true, force: true, notFoundPath: window.location.pathname });
+  } else if (section === 'player') {
+    var gi = findGameIndexBySlug(sub);
+    if (gi >= 0) openGameFullscreen(gi, { skipRoute: true });
+    else showSection('404', { skipRoute: true, force: true, notFoundPath: window.location.pathname });
+  } else if (section === 'observer') {
+    var oi = findObserverIndexBySlug(sub);
+    if (oi >= 0) openLightbox(oi, { skipRoute: true });
+    else showSection('404', { skipRoute: true, force: true, notFoundPath: window.location.pathname });
+  }
+}
+
+function showSection(id, opts) {
+  opts = opts || {};
+  if (!id || ALL_ROUTE_SECTIONS.indexOf(id) < 0) id = 'home';
+  if (id === activeSection && !opts.force) {
+    if (id === 'builder' && !opts.sub && builderOnDetail) closeBuilderDetail({ skipRoute: true });
+    if (id === 'player' && !opts.sub && activeGameIndex >= 0) closeGameFullscreen({ skipRoute: true });
+    if (id === 'observer' && !opts.sub && lbState !== 0) closeLightbox({ skipRoute: true });
+    if (opts.sub) applySubRoute(id, opts.sub, { skipRoute: true, force: true });
+    if (!opts.skipRoute) syncRoute(id, opts.sub || null, !!opts.replace);
+    return;
+  }
   if (id !== 'home' && typeof HOME_HERO_STOP_DRAW === 'function') HOME_HERO_STOP_DRAW();
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('panel--active'); });
   var panel = document.getElementById('panel-' + id);
@@ -2296,28 +2542,58 @@ function showSection(id) {
   }
 
   var nav = document.getElementById('global-nav');
+
+  if (id === '404') {
+    if (activeSection === 'builder' && builderOnDetail) closeBuilderDetail({ skipRoute: true });
+    if (activeSection === 'player' && activeGameIndex >= 0) closeGameFullscreen({ skipRoute: true });
+    if (activeSection === 'observer' && lbState !== 0) closeLightbox({ skipRoute: true });
+    nav.classList.add('visible');
+    document.querySelectorAll('.gnav-link').forEach(function(l) {
+      l.classList.remove('active');
+    });
+    renderNotFoundPage(opts.notFoundPath || window.location.pathname);
+    document.title = '404 — Ran Song';
+    if (panel) panel.scrollTop = 0;
+    activeSection = id;
+    activeSubRoute = null;
+    return;
+  }
+
   if (id === 'home') {
     HOME_HERO_PHASE = 'intro';
     if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') HOME_HERO_PARTICLE_REBUILD();
     nav.classList.remove('visible');
     if (typeof HOME_HERO_RESUME_DRAW === 'function') HOME_HERO_RESUME_DRAW();
+    document.title = 'Ran Song';
   } else {
     nav.classList.add('visible');
     document.querySelectorAll('.gnav-link').forEach(function(l) {
       l.classList.toggle('active', l.dataset.section === id);
     });
     document.getElementById('view-toggle').classList.toggle('gnav-hidden', id !== 'observer');
+    document.title = 'Ran Song';
   }
 
-  if (id !== 'home') {
+  if (id !== 'home' && id !== '404') {
     var homeLink = document.querySelector('.nav-link[data-section="' + id + '"]');
     if (homeLink) homeLink.classList.add('visited');
   }
 
   if (id !== 'observer') closeSheet();
-  if (activeSection === 'builder' && id !== 'builder') closeBuilderDetail();
-  if (id === 'builder' && !builderOnDetail) renderBuilderIndex();
+  if (activeSection === 'builder' && id !== 'builder') closeBuilderDetail({ skipRoute: true });
+  if (activeSection === 'player' && id !== 'player') closeGameFullscreen({ skipRoute: true });
+  if (activeSection === 'observer' && id !== 'observer' && lbState !== 0) closeLightbox({ skipRoute: true });
+
+  if (id === 'builder') {
+    if (!opts.sub && builderOnDetail) closeBuilderDetail({ skipRoute: true });
+    if (!builderOnDetail && !opts.sub) renderBuilderIndex();
+  }
+  if (id === 'player' && !opts.sub && activeGameIndex >= 0) closeGameFullscreen({ skipRoute: true });
+  if (id === 'observer' && !opts.sub && lbState !== 0) closeLightbox({ skipRoute: true });
+
   activeSection = id;
+  if (opts.sub) applySubRoute(id, opts.sub, { skipRoute: true, force: true });
+  if (!opts.skipRoute) syncRoute(id, opts.sub || null, !!opts.replace);
 }
 
 document.addEventListener('click', function(e) {
@@ -2325,6 +2601,16 @@ document.addEventListener('click', function(e) {
   if (!target) return;
   e.preventDefault();
   showSection(target.dataset.section);
+});
+
+window.addEventListener('popstate', function() {
+  var route = resolveInitialRoute();
+  if (route.section === '404') {
+    showSection('404', { skipRoute: true, force: true, notFoundPath: route.rawPath || window.location.pathname });
+    return;
+  }
+  showSection(route.section, { skipRoute: true, force: true });
+  applySubRoute(route.section, route.sub, { skipRoute: true, force: true });
 });
 
 
@@ -2421,12 +2707,20 @@ document.getElementById('carousel-stage').addEventListener('click', function() {
 var lbState = 0;
 var lbIndex = 0;
 
-function openLightbox(idx) {
+function openLightbox(idx, opts) {
+  opts = opts || {};
   lbIndex = idx; lbState = 1;
   carIndex = idx;
   applyLightbox();
   var lb = document.getElementById('obs-lightbox');
   lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
+  if (!opts.skipRoute) syncRoute('observer', ITEMS[idx].slug, !!opts.replace);
+}
+
+function syncLightboxRoute() {
+  if (activeSection === 'observer' && lbState !== 0) {
+    syncRoute('observer', ITEMS[lbIndex].slug, true);
+  }
 }
 
 function applyLightbox() {
@@ -2451,29 +2745,31 @@ function applyLightbox() {
   zone.classList.toggle('shifted',    lbState === 2);
 }
 
-function closeLightbox() {
+function closeLightbox(opts) {
+  opts = opts || {};
   document.getElementById('obs-lightbox').classList.remove('open');
   document.getElementById('obs-lightbox').setAttribute('aria-hidden', 'true');
   lbState = 0;
   renderCarousel(lbIndex);
+  if (!opts.skipRoute && activeSection === 'observer') syncRoute('observer', null, !!opts.replace);
 }
 
 document.getElementById('lb-img-zone').addEventListener('click', function() {
   lbState = (lbState === 1) ? 2 : 1;
   applyLightbox();
 });
-document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lb-close').addEventListener('click', function() { closeLightbox(); });
 document.getElementById('lb-prev').addEventListener('click', function(e) {
-  e.stopPropagation(); lbIndex = (lbIndex - 1 + ITEMS.length) % ITEMS.length; lbState = 1; applyLightbox();
+  e.stopPropagation(); lbIndex = (lbIndex - 1 + ITEMS.length) % ITEMS.length; lbState = 1; applyLightbox(); syncLightboxRoute();
 });
 document.getElementById('lb-next').addEventListener('click', function(e) {
-  e.stopPropagation(); lbIndex = (lbIndex + 1) % ITEMS.length; lbState = 1; applyLightbox();
+  e.stopPropagation(); lbIndex = (lbIndex + 1) % ITEMS.length; lbState = 1; applyLightbox(); syncLightboxRoute();
 });
 document.addEventListener('keydown', function(e) {
   if (lbState !== 0) {
     if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % ITEMS.length; lbState = 1; applyLightbox(); }
-    if (e.key === 'ArrowLeft')  { lbIndex = (lbIndex - 1 + ITEMS.length) % ITEMS.length; lbState = 1; applyLightbox(); }
+    if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % ITEMS.length; lbState = 1; applyLightbox(); syncLightboxRoute(); }
+    if (e.key === 'ArrowLeft')  { lbIndex = (lbIndex - 1 + ITEMS.length) % ITEMS.length; lbState = 1; applyLightbox(); syncLightboxRoute(); }
     return;
   }
   if (activeView === 'carousel') {
@@ -2692,13 +2988,13 @@ function governanceCaseStudyHtml(proj) {
         '<h1 class="cs-header-title">AI Governance Dashboard</h1>' +
         '<p class="cs-header-solo">Solo build</p>' +
         '<p class="cs-header-desc">EU AI Act Articles 10, 11, 13, 14, 15</p>' +
-        '<p class="cs-header-tech">React · Tailwind CSS · Flask · Python (SciPy / Pandas)</p>' +
+        '<p class="cs-header-tech">React · Tailwind CSS · Flask · Python (SciPy / Pandas) · Cursor · Replit · Gemini</p>' +
       '</header>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
 
       '<h2 class="gov-h2"><span class="gov-h2-num">1.</span> Context &amp; Challenge</h2>' +
-      '<p class="gov-p">High-risk algorithmic pricing models operate as proprietary black boxes. Under the EU AI Act, enterprises are now required to audit these systems for demographic and device-based discrimination — without access to the underlying training infrastructure.</p>' +
-      '<p class="gov-p">This project addresses the tooling gap: a forensic audit interface built to make automated pricing decisions observable, accountable, and regulator-ready.</p>' +
+      '<p class="gov-p">High-risk algorithmic pricing models function as proprietary black boxes. According to the EU AI Act, companies must now conduct audits on these systems to identify demographic and device-based discrimination — all without having access to the foundational training infrastructure.</p>' +
+      '<p class="gov-p">This project aims to fill the tooling gap: a forensic audit interface designed to render automated pricing decisions transparent, accountable, and compliant with regulatory standards.</p>' +
 
       '<div class="gov-vid-slot">' +
         vid +
@@ -2707,7 +3003,7 @@ function governanceCaseStudyHtml(proj) {
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
 
       '<h2 class="gov-h2"><span class="gov-h2-num">2.</span> Approach &amp; System Architecture</h2>' +
-      '<p class="gov-p">Rather than simulating governance in isolation, the dashboard treats a live production pricing model as an API endpoint — ingesting real-time transaction streams and mapping four EU AI Act requirements into functional engineering behaviour.</p>' +
+      '<p class="gov-p">Rather than modelling governance in a vacuum, the dashboard utilises a live production pricing model as an API endpoint — processing real-time transaction streams and translating four EU AI Act requirements into practical engineering actions.</p>' +
 
       '<figure class="gov-figure gov-figure--sm">' +
         '<button type="button" class="gov-fig-hit" data-gov-zoom="compliance_architecture.svg" aria-label="Open diagram: compliance architecture">' +
@@ -2721,21 +3017,21 @@ function governanceCaseStudyHtml(proj) {
       '<h2 class="gov-h2"><span class="gov-h2-num">3.</span> Core System Pillars</h2>' +
 
       '<h3 class="gov-h3">Bias Detection · Articles 10 &amp; 13</h3>' +
-      '<p class="gov-p">An intersectional disparity matrix monitors transaction logs across device profiles (iOS vs Android) and geographic cohorts, surfacing selection rate disparities at scale. A dynamic threshold interface allows compliance teams to adjust the sensitivity ceiling and evaluate how policy constraints affect pass/fail classification in real-time. Tested on batch streams of up to 2,000 records.</p>' +
+      '<p class="gov-p">An intersectional disparity matrix oversees transaction logs across various device profiles (iOS versus Android) and geographic groups, highlighting selection rate disparities on a large scale. A dynamic threshold interface enables compliance teams to modify the sensitivity ceiling and assess how policy constraints influence pass/fail classification in real-time. This has been tested on batch streams containing up to 2,000 records.</p>' +
 
       '<h3 class="gov-h3">Human Oversight · Article 14</h3>' +
-      '<p class="gov-p">When raw bias ratios exceed defined limits, the system enters a mandatory restricted workflow: sensitive logs are sealed, model execution is suspended, and the reviewing auditor must submit a 20-character structural justification alongside a full electronic signature before operations resume. Accountability is enforced at the system level, not left to process.</p>' +
+      '<p class="gov-p">When raw bias ratios surpass established limits, the system transitions into a mandatory restricted workflow: sensitive logs are secured, model execution is halted, and the reviewing auditor is required to provide a 20-character structural justification along with a complete electronic signature before operations can continue. Accountability is maintained at the system level, rather than being reliant on the process.</p>' +
 
       '<h3 class="gov-h3">Audit Trail Integrity · Article 11</h3>' +
-      '<p class="gov-p">On-demand PDF generation produces regulator-ready technical documentation. Each report is SHA-256 fingerprinted against the exact data state and human sign-off log at the moment of generation, providing immutable evidence of the decision context and preventing post-incident modification.</p>' +
+      '<p class="gov-p">On-demand PDF generation creates regulator-ready technical documentation. Each report is SHA-256 fingerprinted against the precise data state and human sign-off log at the time of generation, offering unalterable evidence of the decision context and preventing modifications after an incident.</p>' +
 
       '<h3 class="gov-h3">Automated Containment · Article 15</h3>' +
-      '<p class="gov-p">A simulated adversarial injection pushes bias to a critical threshold of 1.95x. The Flask backend responds with an automatic API lockdown; an Emergency Brake routine then isolates the compromised inference model entirely and degrades gracefully to a static, non-algorithmic fallback — execution to resolution in milliseconds.</p>' +
+      '<p class="gov-p">A simulated adversarial injection drives bias to a critical threshold of 1.95x. The Flask backend reacts with an automatic API lockdown; an Emergency Brake routine subsequently isolates the compromised inference model completely and degrades smoothly to a static, non-algorithmic fallback — execution to resolution occurs in milliseconds.</p>' +
 
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
 
       '<h2 class="gov-h2"><span class="gov-h2-num">4.</span> Compliance User Flow</h2>' +
-      '<p class="gov-p">This user flow maps how an auditor interacts with an algorithmic anomaly at runtime, shifting the system seamlessly from automated passive monitoring to active human remediation:</p>' +
+      '<p class="gov-p">This user flow illustrates the interaction between an auditor and an algorithmic anomaly during runtime, transitioning the system smoothly from automated passive monitoring to active human intervention:</p>' +
 
       '<figure class="gov-figure gov-figure--sm gov-figure--flow">' +
         '<button type="button" class="gov-fig-hit" data-gov-zoom="user_flow.svg" aria-label="Open diagram: auditor crisis response loop">' +
@@ -2747,7 +3043,7 @@ function governanceCaseStudyHtml(proj) {
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
 
       '<h2 class="gov-h2"><span class="gov-h2-num">5.</span> Product Lifecycle Roadmap</h2>' +
-      '<p class="gov-p">The strategic product roadmap outlines the lifecycle evolution of the dashboard, deliberately aligned with the staggered legislative enforcement timelines of the EU AI Act:</p>' +
+      '<p class="gov-p">The strategic product roadmap delineates the evolution of the dashboard&rsquo;s lifecycle, intentionally synchronised with the phased implementation timelines of the EU AI Act:</p>' +
 
       '<figure class="gov-figure gov-figure--sm">' +
         '<button type="button" class="gov-fig-hit" data-gov-zoom="roadmap.svg" aria-label="Open diagram: roadmap timeline">' +
@@ -2758,8 +3054,8 @@ function governanceCaseStudyHtml(proj) {
 
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
 
-      '<h2 class="gov-h2"><span class="gov-h2-num">6.</span> Outcome &amp; Key Takeaway</h2>' +
-      '<p class="gov-p">A working prototype that translates the abstract compliance language of the EU AI Act into deterministic system behaviour — demonstrating that AI governance is an engineering problem as much as a policy one.</p>' +
+      '<h2 class="gov-h2"><span class="gov-h2-num">6.</span> Results &amp; Main Insight</h2>' +
+      '<p class="gov-p">A functional prototype that converts the abstract compliance language of the EU AI Act into predictable system behaviour — illustrating that AI governance is as much an engineering challenge as it is a policy issue.</p>' +
       '<p class="gov-p">Role: Solo build — product, design, engineering</p>' +
 
       '<footer class="gov-footer">' +
@@ -2773,38 +3069,75 @@ function governanceCaseStudyHtml(proj) {
 function playceVideoPlaceholderHtml() {
   return (
     '<div class="gov-vid-slot">' +
-      '<div class="gov-vid-placeholder" role="note">' +
-        '<span class="gov-vid-placeholder-label">[ Video Demo ]</span>' +
-        '<span class="gov-vid-placeholder-sub">Coming soon</span>' +
+      caseStudyVideoHtml('assets/playce-demo-video.mp4') +
+    '</div>'
+  );
+}
+
+var PLAYCE_SCREEN_ASSETS = {
+  'playce-01-homepage': 'photos/playce/01-homepage.png',
+  'playce-02-recommend': 'photos/playce/02-recommend.jpeg',
+  'playce-03-budget-duration': 'photos/playce/03-budget-duration.png',
+  'playce-04-vibe-index': 'photos/playce/04-confirm-vibe-index.jpeg',
+  'playce-05-move-fact-event': 'photos/playce/05-move-fact-event.png',
+  'playce-06-move-itinerary': 'photos/playce/06-move-itinerary.png',
+  'playce-07-ai-advisor': 'photos/playce/07-ai-advisor.png',
+  'playce-08-ai-adjust': 'photos/playce/08-ai-adjust.png',
+  'playce-09-gear-transport': 'photos/playce/09-gear-transport.png',
+  'playce-10-save-research': 'photos/playce/10-save-research.jpeg',
+  'playce-11-saved-journey': 'photos/playce/11-saved-journey.png',
+  'playce-12-saved-destinations': 'photos/playce/12-saved-destinations.jpeg',
+};
+
+function playceScreenPlaceholder(caption, alt, assetKey) {
+  var src = PLAYCE_SCREEN_ASSETS[assetKey] || '';
+  return (
+    '<figure class="playce-how__step-fig">' +
+      '<div class="playce-how__shot">' +
+      '<span class="playce-how__shot-ph" aria-hidden="true">Screenshot</span>' +
+      '<img class="playce-how__step-img" data-playce-asset="' +
+      assetKey +
+      '" src="' +
+      src +
+      '" alt="' +
+      alt +
+      '" loading="lazy" />' +
+      '</div>' +
+      (caption ? '<figcaption class="gov-fig-caption">' + caption + '</figcaption>' : '') +
+    '</figure>'
+  );
+}
+
+function playceHowWorksStepHtml(n, kicker, title, descParagraphs, screensHtml) {
+  var nn = n < 10 ? '0' + n : String(n);
+  var desc = (descParagraphs || [])
+    .map(function (p) {
+      return '<p class="playce-how__step-desc">' + p + '</p>';
+    })
+    .join('');
+  return (
+    '<div class="playce-how__step playce-how__step--media">' +
+      '<span class="playce-how__step-num">' +
+      nn +
+      '</span>' +
+      '<div class="playce-how__step-main">' +
+      (kicker ? '<p class="playce-how__step-kicker">' + kicker + '</p>' : '') +
+      '<h3 class="playce-how__step-title">' +
+      title +
+      '</h3>' +
+      desc +
+      (screensHtml ? '<div class="playce-how__step-screens">' + screensHtml + '</div>' : '') +
       '</div>' +
     '</div>'
   );
 }
 
-function playceHowWorksStepHtml(n, title, desc, imgAlt) {
-  var nn = n < 10 ? '0' + n : String(n);
+function playceScreenDuoPlaceholder(left, right) {
   return (
-    '<div class="playce-how__step">' +
-      '<span class="playce-how__step-num">' +
-      nn +
-      '</span>' +
-      '<div class="playce-how__step-copy">' +
-      '<h3 class="playce-how__step-title">' +
-      title +
-      '</h3>' +
-      '<p class="playce-how__step-desc">' +
-      desc +
-      '</p>' +
-      '</div>' +
-      '<figure class="playce-how__step-fig">' +
-      '<div class="playce-how__shot">' +
-      '<span class="playce-how__shot-ph" aria-hidden="true">Screenshot</span>' +
-      '<img class="step-img playce-how__step-img" src="" alt="' +
-      (imgAlt || '') +
-      '" loading="lazy" style="width:100%;display:block">' +
-      '</div>' +
-      '</figure>' +
-      '</div>'
+    '<div class="playce-how__screen-duo">' +
+      playceScreenPlaceholder(left.caption, left.alt, left.assetKey) +
+      playceScreenPlaceholder(right.caption, right.alt, right.assetKey) +
+    '</div>'
   );
 }
 
@@ -2814,73 +3147,145 @@ function playceCaseStudyHtml(proj) {
   return (
     '<article class="gov-case">' +
       '<header class="cs-header">' +
-        '<p class="cs-header-num">' +
-        proj.type +
-        ' · ' +
-        proj.year +
-        '</p>' +
+        '<p class="cs-header-num">Product · 2026</p>' +
         '<h1 class="cs-header-title">PLAYCE — Sports Travel Decision</h1>' +
-        '<p class="cs-header-solo">Solo build</p>' +
+        '<p class="cs-header-desc">A planning tool for people who travel around sports.</p>' +
+        '<p class="cs-header-tech">Next.js · Groq · Vercel · Cursor · Gemini · Claude · Canva · Solo build · 3 weeks</p>' +
       '</header>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
-      '<h2 class="gov-h2"><span class="gov-h2-num">1.</span> The problem</h2>' +
-      '<p class="gov-p">The idea came from a recurring frustration. As someone who travels around sport — to ski, to run, to watch races — the planning process is consistently broken. Finding a marathon in a city you want to visit, checking if the season is right for a specific trail, understanding whether a destination has the infrastructure for what you actually want to do: none of this lives in one place. You cross-reference sport community forums, check race calendars on separate sites, then switch to a booking platform for hotels and transport. When you ask a general AI assistant, it confidently returns wrong dates, cancelled events, and venues that no longer exist.</p>' +
-      '<p class="gov-p">The problem isn&rsquo;t a lack of information. It&rsquo;s that no tool understands sport as the primary variable in a travel decision — the thing everything else is planned around.</p>' +
-      '<p class="gov-p">PLAYCE is built to close that gap. A planning tool for travellers who move: surfers, climbers, skiers, runners, hikers, yoga practitioners — anyone who goes somewhere to do something, not just to see it. The solo travel layer addresses a secondary but structurally important question: not whether a destination is safe in a generic sense, but whether it&rsquo;s open — whether you&rsquo;ll find partners, infrastructure, and a local scene that works for an individual arriving alone.</p>' +
-      '<p class="gov-p">The core design decision: one recommendation, fully reasoned. Not a list. A committed answer.</p>' +
       vid +
+      '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
+      '<h2 class="gov-h2"><span class="gov-h2-num">1.</span> The problem</h2>' +
+      '<p class="gov-p">The idea came from many frustrating moments. As someone who loves travelling around sport — to run, to ski, to kayak, to drive, to watch competition games — the planning process was always mixed with excitement and disappointment. Finding a marathon in a city you want to visit, checking if the season is right for a specific trail, understanding whether a destination has the infrastructure for what you actually want to do: none of this lives in one place. You cross-reference sport community forums, check race calendars on separate sites, then switch to a booking platform for hotels and transport. When you ask a general AI assistant, it confidently returns wrong dates, cancelled events, and venues that no longer exist.</p>' +
+      '<p class="gov-p">The problem isn&rsquo;t missing information. It&rsquo;s that no tool understands sport as the primary variable in a travel decision.</p>' +
+      '<p class="gov-p">PLAYCE is built to close that gap. A planning tool for travellers who move: surfers, climbers, skiers, runners, hikers, yoga practitioners — anyone who goes somewhere to experience something, not just to see it. The solo travel layer addresses a secondary but structurally important question: not whether a destination is safe in a generic sense, but whether it&rsquo;s open — whether you&rsquo;ll find partners, infrastructure, and a local scene that works for an individual arriving alone.</p>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
       '<h2 class="gov-h2"><span class="gov-h2-num">2.</span> Traveller journey</h2>' +
       '<section class="playce-how" aria-label="Traveller journey steps">' +
       '<div class="playce-how__steps">' +
       playceHowWorksStepHtml(
         1,
-        'Describe your move',
-        'Type your intent in natural language &mdash; a sport, a vibe, a level of difficulty. No categories. No filters. Just what you want to do.',
-        ''
+        'intent',
+        'Describe what you want to do',
+        [
+          'The entry point is a freeform field. Type your intent in natural language — a sport, a vibe or a level of difficulty — or select from the suggested tags below, and choose whether you are going to practice, compete or watch.',
+        ],
+        playceScreenPlaceholder(
+          'Homepage — intent capture + mode selector',
+          'PLAYCE homepage with intent input and mode selector',
+          'playce-01-homepage'
+        )
       ) +
       playceHowWorksStepHtml(
         2,
-        'We match your level',
-        'PLAYCE returns three destinations calibrated to Novice, Intermediate, and Pro. Select your tier &mdash; everything else follows.',
-        ''
+        'results',
+        'Three destinations, matched to your level',
+        [
+          'PLAYCE recommends three destinations matched to your activity, each with a skill level rating — so you can choose the one that fits where you are right now.',
+        ],
+        playceScreenPlaceholder(
+          'Results — calibrated to skill level',
+          'PLAYCE destination recommendations',
+          'playce-02-recommend'
+        )
       ) +
       playceHowWorksStepHtml(
         3,
-        'Check the Vibe Index',
-        'Every destination is scored across six dimensions: Women-friendly rating, Solo index, Night safety, Harassment risk, Community density, Infrastructure. One number that tells you if this place works for you.',
-        ''
+        'calibration',
+        'Set the two constraints that shape everything else',
+        [
+          'Budget tier (Essential, Mid-range, Luxe) and trip length (Weekend to 2 weeks). These feed silently into destination ranking, accommodation type, experience cards, and itinerary pacing — so the system never has to ask again.',
+        ],
+        playceScreenPlaceholder(
+          'Calibration — budget and duration',
+          'PLAYCE budget and trip length calibration',
+          'playce-03-budget-duration'
+        )
       ) +
       playceHowWorksStepHtml(
         4,
-        'Get your full brief',
-        'A flat, day-by-day itinerary with gear checklist, local transport, dining areas, and booking links. Export as PDF.',
-        ''
+        'decision',
+        'The full brief before you commit',
+        [
+          'Selecting a destination opens the decision page — nothing is confirmed yet. The top half makes the case: a rationale, the Vibe Index, and a &ldquo;Why this spot&rdquo; section that names the specific reasons this pick works for your intent, timing, and level.',
+          'The Vibe Index is the most structurally complex piece. Solo travel compatibility data lives in Reddit threads, forum posts, and community reviews — qualitative, inconsistent, scattered. PLAYCE distils it into six scoring dimensions: Solo index, Women-friendly rating, Safety feeling, Route access, Social openness, Traveller density. Notice: vibe index is a signal, not a guarantee.',
+          'Fast Facts (airports, visa prompt, budget estimate, weather), the specific event on the calendar, and a first-day itinerary preview before you confirm.',
+        ],
+        playceScreenPlaceholder(
+          'Confirm your move — hero and Vibe Index',
+          'PLAYCE decision page with Vibe Index',
+          'playce-04-vibe-index'
+        ) +
+        playceScreenPlaceholder(
+          'Fast facts and event on calendar',
+          'PLAYCE move facts and event details',
+          'playce-05-move-fact-event'
+        ) +
+        playceScreenPlaceholder(
+          'Why this spot and itinerary preview',
+          'PLAYCE itinerary preview before confirming',
+          'playce-06-move-itinerary'
+        )
       ) +
       playceHowWorksStepHtml(
         5,
-        'Refine with AI',
-        'Paste links, adjust constraints, add dates. The AI Strategic Advisor operates on your existing plan &mdash; not a blank slate.',
-        ''
+        'planning workspace',
+        'Build the plan, then refine it',
+        [
+          'Confirming opens the AI advisor and the full plan where you can scan an entire trip&rsquo;s physical rhythm in a few seconds. Talk to the AI advisor to adjust your trip.',
+          'The mission briefing bundles execution: gear checklist (Pack vs. Rent), local transport with prices and context, and an Intelligence Hub for saving research links by category. Journeys and destinations are saved independently.',
+        ],
+        playceScreenDuoPlaceholder(
+          {
+            caption: 'AI Advisor — plan context loaded',
+            alt: 'PLAYCE AI advisor workspace',
+            assetKey: 'playce-07-ai-advisor',
+          },
+          {
+            caption: 'Updated plan via natural language',
+            alt: 'PLAYCE AI plan adjustment',
+            assetKey: 'playce-08-ai-adjust',
+          }
+        ) +
+        playceScreenDuoPlaceholder(
+          {
+            caption: 'Gear check and getting around',
+            alt: 'PLAYCE gear checklist and local transport',
+            assetKey: 'playce-09-gear-transport',
+          },
+          {
+            caption: 'Intelligence hub',
+            alt: 'PLAYCE saved research links',
+            assetKey: 'playce-10-save-research',
+          }
+        ) +
+        playceScreenDuoPlaceholder(
+          {
+            caption: 'Saved journeys — restore any plan',
+            alt: 'PLAYCE saved journeys',
+            assetKey: 'playce-11-saved-journey',
+          },
+          {
+            caption: 'Saved destinations',
+            alt: 'PLAYCE saved destinations',
+            assetKey: 'playce-12-saved-destinations',
+          }
+        )
       ) +
       '</div>' +
       '</section>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
       '<h2 class="gov-h2"><span class="gov-h2-num">3.</span> Product decisions</h2>' +
-      '<h3 class="gov-h3">Intent capture over category browsing</h3>' +
-      '<p class="gov-p">Users describe what they want in natural language — &ldquo;relaxing oceanfront yoga retreat,&rdquo; &ldquo;advanced alpine climbing,&rdquo; &ldquo;trail running at altitude.&rdquo; The system interprets intent, infers difficulty, and maps it to geography. This eliminates the category-browsing pattern that works for leisure travel but fails for sport-specific queries where terrain, season, and skill level are interdependent.</p>' +
-      '<h3 class="gov-h3">Adaptive difficulty segmentation</h3>' +
-      '<p class="gov-p">When a user doesn&rsquo;t specify their level, PLAYCE distributes across three tiers — Novice, Intermediate, and Pro — rather than defaulting to a generic match. A Portugal surf query returns Peniche, Lagos, and Nazaré as distinct options with distinct technical profiles. The user selects their tier; subsequent steps inherit that parameter silently, removing a third of legacy form inputs.</p>' +
-      '<h3 class="gov-h3">Vibe Index</h3>' +
-      '<p class="gov-p">The most structurally complex product decision. Solo travel compatibility data is scattered across Reddit threads, TripAdvisor reviews, and community forums — qualitative, inconsistent, and hard to aggregate. The Vibe Index distils this into a scored profile per destination across six dimensions: Women-friendly rating, Solo index, Night safety, Harassment risk, Community density, and Infrastructure quality. The challenge was deciding what to measure, how to weight conflicting signals, and how to present a confidence level without undermining the recommendation. Women-friendly is included not as a niche filter but as a quality signal relevant to any solo traveller evaluating openness and safety. Scores are indicative — the disclaimer is built into the interface.</p>' +
-      '<h3 class="gov-h3">Flattened itinerary</h3>' +
-      '<p class="gov-p">The original UI used nested accordions. With ten days of content, users had to click through ten separate panels to read a complete itinerary — engagement dropped sharply after day four. Replacing every nested component with a flat, continuous waterfall timeline meant users could scan an entire trip&rsquo;s physical rhythm — morning sessions, afternoon recovery, rest days — in under two seconds. Post-change feedback consistently described the AI&rsquo;s output as more capable, even though the underlying content was identical. Presentation was the variable.</p>' +
-      '<h3 class="gov-h3">Geographic supply guardrails</h3>' +
-      '<p class="gov-p">Logistics localisation was enforced at the prompt layer. A user selecting Tulum receives Uber, Didi, and ADO bus recommendations — not a generic shuttle placeholder, and not the Indonesian transport options that a hallucinating model might default to. This was a deliberate product constraint: the system commits to local operational reality rather than generating plausible-sounding logistics.</p>' +
-      '<h3 class="gov-h3">Mission briefing layer</h3>' +
-      '<p class="gov-p">After confirming a destination, users receive an operational brief: gear checklist (pack vs. rent), context-aware transport, dining areas, booking links, and a PDF export. This moves PLAYCE from discovery to execution.</p>' +
-      '<h3 class="gov-h3">AI Strategic Advisor</h3>' +
-      '<p class="gov-p">A persistent chat layer allows users to refine after generation — pasting links, adjusting constraints, adding dates. Designed as an intelligence layer operating on existing plan context rather than a general-purpose chatbot restarting from scratch.</p>' +
+      '<h3 class="gov-h3">Intent over filters</h3>' +
+      '<p class="gov-p">Users type what they want. The system interprets sport type, difficulty, and season from natural language — removing category-browsing that works for leisure but breaks for sport queries where terrain, season, and skill level are interdependent.</p>' +
+      '<h3 class="gov-h3">Three tiers, always</h3>' +
+      '<p class="gov-p">When a user doesn&rsquo;t specify their level, PLAYCE distributes across Beginner, Intermediate, and Pro rather than defaulting to a generic match. Picking your tier removes roughly a third of legacy form inputs downstream.</p>' +
+      '<h3 class="gov-h3">Localised logistics</h3>' +
+      '<p class="gov-p">Transport is enforced at the prompt layer and the system commits to local operational reality. For example, Bangkok returns Grab, BTS Skytrain, and MRT — not generic placeholders, not options pulled from the wrong region.</p>' +
+      '<h3 class="gov-h3">AI as refinement</h3>' +
+      '<p class="gov-p">The Advisor operates on the existing recommended plan. The difference between a planning assistant and a chatbot dressed up as one.</p>' +
+      '<h3 class="gov-h3">Visa always links out</h3>' +
+      '<p class="gov-p">Requirements are never AI-generated. The interface shows &ldquo;Check requirements &rarr;&rdquo; and links to search on official sources. Getting this wrong is the kind of mistake a user doesn&rsquo;t forgive.</p>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
       '<h2 class="gov-h2"><span class="gov-h2-num">4.</span> Technical challenges</h2>' +
       '<h3 class="gov-h3">Model selection and cost architecture</h3>' +
@@ -2904,7 +3309,7 @@ function playceCaseStudyHtml(proj) {
       '<h3 class="gov-h3">Test coverage</h3>' +
       '<p class="gov-p">Across the full iteration cycle, approximately 200–250 structured itineraries were generated, including 40–50 complete end-to-end flows and 30+ dedicated edge-case tests on long-form outputs. The system was validated across five sport categories — surfing, skiing, climbing, hiking, yoga — and fifteen destinations including Peniche, Niseko, Chamonix, Tulum, and Bali.</p>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
-      '<h2 class="gov-h2"><span class="gov-h2-num">5.</span> Regulatory-driven product strategy</h2>' +
+      '<h2 class="gov-h2"><span class="gov-h2-num">5.</span> Roadmap</h2>' +
       '<figure class="gov-figure gov-figure--sm">' +
         '<button type="button" class="gov-fig-hit" data-gov-zoom="playce_roadmap.svg" aria-label="Open diagram: PLAYCE roadmap">' +
         '<img src="playce_roadmap.svg" alt="PLAYCE product roadmap timeline" loading="lazy"/>' +
@@ -2913,7 +3318,7 @@ function playceCaseStudyHtml(proj) {
       '</figure>' +
       '<div class="gov-rule" role="separator" aria-hidden="true"></div>' +
       '<h2 class="gov-h2"><span class="gov-h2-num">6.</span> Outcome</h2>' +
-      '<p class="gov-p">A full-stack AI travel product built solo from brief to deployment. PLAYCE demonstrates end-to-end product ownership — problem framing, information architecture, prompt engineering, resilience design, and visual execution — across a use case with real structural complexity: personalised, context-aware recommendations where sport, season, skill level, and solo compatibility are all interdependent variables. The model layer is designed to scale — what ships on Grok today is an architecture built to run on whatever inference engine best serves the product tomorrow.</p>' +
+      '<p class="gov-p">A full-stack AI sports travel product built solo from project briefing to final deployment. Although it&rsquo;s an early product, PLAYCE demonstrates end-to-end product ownership, including problem definition, information architecture, prompt engineering, and flexible design to visualisation. It also applies to a use case with real structural complexity: personalised, context-aware recommendations where sport, season, skill level, and solo compatibility are all interrelated variables. The model layer is designed to be scalable — the current architecture on the Grok platform is designed to run on any inference engine best suited to the product&rsquo;s needs in the future.</p>' +
       '<p class="gov-p">Role: Solo build — product, design, engineering</p>' +
       '<footer class="gov-footer">' +
       '<h2 class="gov-h2 gov-h2--footer"><span class="gov-h2-num">7.</span> Want to see it live?</h2>' +
@@ -3067,7 +3472,9 @@ function builderCardHtml(p, i) {
     '" tabindex="0" role="button" aria-label="Open case study: ' +
     p.title +
     '">' +
-    '<div class="builder-card-preview">' +
+    '<div class="builder-card-preview' +
+    (p.cardArt === 'playce' ? ' builder-card-preview--playce' : '') +
+    '">' +
     art +
     '</div>' +
     '<p class="builder-card-badge">' +
@@ -3210,6 +3617,23 @@ function renderBuilderDetailContent(proj) {
     initGovernanceFigureZoom(body);
     return;
   }
+  if (proj.comingSoon) {
+    body.innerHTML =
+      '<div class="cs-header">' +
+      '<p class="cs-header-num">' +
+      proj.num +
+      ' — ' +
+      (proj.type || builderCategoryLabel(proj.category)) +
+      ' · ' +
+      proj.year +
+      '</p>' +
+      '<h1 class="cs-header-title">' +
+      proj.title +
+      '</h1>' +
+      '</div>' +
+      '<div class="cs-body"><p class="cs-text">Coming soon.</p></div>';
+    return;
+  }
   var html =
     '<div class="cs-header">' +
     '<p class="cs-header-num">' +
@@ -3273,8 +3697,13 @@ function renderBuilderDetailContent(proj) {
   initVideoControls(body);
 }
 
-function openBuilderProject(i) {
+function openBuilderProject(i, opts) {
+  opts = opts || {};
   if (i < 0 || i >= PROJECTS.length) return;
+  if (builderOnDetail && activeProj === i && !opts.force) {
+    if (!opts.skipRoute) syncRoute('builder', PROJECTS[i].slug, !!opts.replace);
+    return;
+  }
   activeProj = i;
   builderOnDetail = true;
   var indexEl = document.getElementById('builder-index');
@@ -3287,15 +3716,18 @@ function openBuilderProject(i) {
   renderBuilderDetailContent(PROJECTS[i]);
   var panel = document.getElementById('panel-builder');
   if (panel) panel.scrollTop = 0;
+  if (!opts.skipRoute) syncRoute('builder', PROJECTS[i].slug, !!opts.replace);
 }
 
-function closeBuilderDetail() {
+function closeBuilderDetail(opts) {
+  opts = opts || {};
   builderOnDetail = false;
   if (typeof window.closeGovFigureZoom === 'function') window.closeGovFigureZoom();
   var indexEl = document.getElementById('builder-index');
   var detailEl = document.getElementById('builder-detail');
   if (indexEl) indexEl.classList.remove('builder-view--off');
   if (detailEl) detailEl.classList.add('builder-view--off');
+  if (!opts.skipRoute && activeSection === 'builder') syncRoute('builder', null, !!opts.replace);
 }
 
 function initBuilderNav() {
@@ -3590,7 +4022,8 @@ function renderPlayerGrid() {
   });
 }
 
-function openGameFullscreen(i) {
+function openGameFullscreen(i, opts) {
+  opts = opts || {};
   ranGameFullscreenClosePrep();
   var g = GAMES[i];
   var host = document.getElementById('gfs-body');
@@ -3611,23 +4044,52 @@ function openGameFullscreen(i) {
   }
   var fs = document.getElementById('game-fullscreen');
   fs.classList.add('open'); fs.setAttribute('aria-hidden', 'false');
+  activeGameIndex = i;
+  if (!opts.skipRoute) syncRoute('player', g.slug, !!opts.replace);
 }
-document.getElementById('gfs-close').addEventListener('click', function() {
+
+function closeGameFullscreen(opts) {
+  opts = opts || {};
   ranGameFullscreenClosePrep();
   var fs = document.getElementById('game-fullscreen');
   var bod = document.getElementById('gfs-body');
-  bod.className = 'gfs-body';
-  bod.innerHTML = '';
-  fs.classList.remove('open'); fs.setAttribute('aria-hidden', 'true');
+  if (bod) {
+    bod.className = 'gfs-body';
+    bod.innerHTML = '';
+  }
+  if (fs) {
+    fs.classList.remove('open');
+    fs.setAttribute('aria-hidden', 'true');
+  }
+  activeGameIndex = -1;
+  if (!opts.skipRoute && activeSection === 'player') syncRoute('player', null, !!opts.replace);
+}
+
+document.getElementById('gfs-close').addEventListener('click', function() {
+  closeGameFullscreen();
 });
 
 /* ────────────────────────────────────────────────────
    THINKER — left list + right pure text content
    ──────────────────────────────────────────────────── */
 /* ── Thinker: centred reader ── */
+function setActiveThought(i, opts) {
+  opts = opts || {};
+  if (i < 0 || i >= THOUGHTS.length || !isThoughtVisible(i)) return;
+  if (i === activeThought && !opts.force) {
+    if (!opts.skipRoute && activeSection === 'writing') syncRoute('writing', THOUGHTS[i].slug, !!opts.replace);
+    return;
+  }
+  activeThought = i;
+  renderThinkerReader();
+  if (!opts.skipRoute && activeSection === 'writing') syncRoute('writing', THOUGHTS[i].slug, !!opts.replace);
+}
+
 function renderThinkerReader() {
   var reader = document.getElementById('tk-reader');
   var t = THOUGHTS[activeThought];
+  var visibleCount = getVisibleThoughtIndices().length;
+  var visiblePos = getVisibleThoughtPosition(activeThought);
   var html =
     '<div class="tk-reader-inner">' +
       '<p class="tk-body-num">' + t.num + '</p>' +
@@ -3638,10 +4100,8 @@ function renderThinkerReader() {
   html += '</div>';
   reader.innerHTML = html;
   reader.scrollTop = 0;
-  // update bottom bar
   document.getElementById('tk-bar-info').textContent =
-    String(activeThought + 1).padStart(2, '0') + ' / ' + String(THOUGHTS.length).padStart(2, '0') + '  —  ' + t.title;
-  // refresh active state in drawer if open
+    String(visiblePos).padStart(2, '0') + ' / ' + String(visibleCount).padStart(2, '0') + '  —  ' + t.title;
   document.querySelectorAll('.tk-drawer-row').forEach(function(r) {
     r.classList.toggle('active', parseInt(r.dataset.thought, 10) === activeThought);
   });
@@ -3650,10 +4110,11 @@ function renderThinkerReader() {
 function renderThinkerDrawer() {
   var list = document.getElementById('tk-drawer-list');
   var html = '';
-  THOUGHTS.forEach(function(t, i) {
+  getVisibleThoughtIndices().forEach(function (i) {
+    var t = THOUGHTS[i];
     html +=
       '<div class="tk-drawer-row' + (i === activeThought ? ' active' : '') + '" data-thought="' + i + '">' +
-        '<span class="tk-date">' + t.num + '</span>' +
+        '<span class="tk-date">' + t.date + '</span>' +
         '<div>' +
           '<p class="tk-title">' + t.title + '</p>' +
           '<p class="tk-desc">'  + t.desc  + '</p>' +
@@ -3664,8 +4125,7 @@ function renderThinkerDrawer() {
   list.innerHTML = html;
   list.querySelectorAll('.tk-drawer-row').forEach(function(row) {
     row.addEventListener('click', function() {
-      activeThought = parseInt(row.dataset.thought, 10);
-      renderThinkerReader();
+      setActiveThought(parseInt(row.dataset.thought, 10));
       closeThinkerDrawer();
     });
   });
@@ -3690,10 +4150,14 @@ document.getElementById('tk-index-btn').addEventListener('click', function() {
 document.getElementById('tk-drawer-close').addEventListener('click', closeThinkerDrawer);
 
 document.getElementById('tk-prev').addEventListener('click', function() {
-  if (activeThought > 0) { activeThought--; renderThinkerReader(); }
+  var visible = getVisibleThoughtIndices();
+  var pos = visible.indexOf(activeThought);
+  if (pos > 0) setActiveThought(visible[pos - 1]);
 });
 document.getElementById('tk-next').addEventListener('click', function() {
-  if (activeThought < THOUGHTS.length - 1) { activeThought++; renderThinkerReader(); }
+  var visible = getVisibleThoughtIndices();
+  var pos = visible.indexOf(activeThought);
+  if (pos >= 0 && pos < visible.length - 1) setActiveThought(visible[pos + 1]);
 });
 
 /* ────────────────────────────────────────────────────
@@ -3701,6 +4165,7 @@ document.getElementById('tk-next').addEventListener('click', function() {
    ──────────────────────────────────────────────────── */
 // Observer: FLOW (columns) default; editorial GRID + LIST on toggle
 
+ensureRouteSlugs();
 buildGridColumns();
 renderCarousel(0);
 renderBuilderIndex();
@@ -3710,10 +4175,19 @@ renderThinkerReader();
 bindSiteThemeToggle();
 initTextParticles();
 
-(function initDeepLinkHash() {
-  var raw = String(window.location.hash || '').replace(/^#/, '');
-  if (!raw || typeof showSection !== 'function') return;
-  var sections = ['home', 'observer', 'builder', 'player', 'writing', 'about'];
-  var id = sections.indexOf(raw) >= 0 ? raw : '';
-  if (id) showSection(id);
+(function initSectionRoute() {
+  migrateLegacyHashRoute();
+  migrateLegacyPathRoute();
+  var route = resolveInitialRoute();
+  if (route.section === '404') {
+    showSection('404', { skipRoute: true, force: true, notFoundPath: route.rawPath || window.location.pathname });
+    return;
+  }
+  if (route.section === 'home') {
+    syncRoute('home', null, true);
+    return;
+  }
+  showSection(route.section, { skipRoute: true, force: true });
+  applySubRoute(route.section, route.sub, { skipRoute: true, force: true });
+  syncRoute(route.section, route.sub, true);
 })();

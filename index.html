@@ -3,7 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="/" />
   <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+  <script>
+    (function (l) {
+      if (l.search.slice(0, 2) === '/?') return;
+      if (l.search[1] === '/') {
+        var decoded = l.search.slice(1).split('&').map(function (s) {
+          return s.replace(/~and~/g, '&');
+        }).join('?');
+        window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded.slice(1) + l.hash);
+      }
+    }(window.location));
+  </script>
   <script>
     (function () {
       try {
@@ -12,17 +24,21 @@
         if (t !== 'light' && t !== 'dark')
           t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.dataset.theme = t;
+        document.documentElement.classList.add('home-boot');
         var meta = document.getElementById('theme-color-meta');
         if (meta) meta.setAttribute('content', t === 'dark' ? '#131315' : '#ffffff');
       } catch (e) {}
     })();
   </script>
   <title>Ran Song</title>
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="favicon.png" sizes="512x512" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Spectral:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260521" />
 </head>
 <body>
 
@@ -32,12 +48,12 @@
 
   <!-- ══ GLOBAL NAV ══════════════════════════════════════ -->
   <nav class="global-nav" id="global-nav" aria-label="Navigation">
-    <a href="#" class="gnav-home" data-section="home">Ran Song</a>
-    <a href="#" class="gnav-link" data-section="observer">00 — Observer</a>
-    <a href="#" class="gnav-link" data-section="builder">01 — Builder</a>
-    <a href="#" class="gnav-link" data-section="player">02 — Player</a>
-    <a href="#" class="gnav-link" data-section="writing">03 — Thinker</a>
-    <a href="#" class="gnav-link" data-section="about">04 — About</a>
+    <a href="/" class="gnav-home" data-section="home">Ran Song</a>
+    <a href="/observer" class="gnav-link" data-section="observer">00 — Observer</a>
+    <a href="/builder" class="gnav-link" data-section="builder">01 — Builder</a>
+    <a href="/player" class="gnav-link" data-section="player">02 — Player</a>
+    <a href="/thinker" class="gnav-link" data-section="writing">03 — Thinker</a>
+    <a href="/about" class="gnav-link" data-section="about">04 — About</a>
     <div class="gnav-tail">
     <button type="button" class="gnav-theme-btn" id="theme-toggle" data-theme-toggle aria-label="Toggle light and dark appearance" aria-pressed="false" title="Theme">⋯</button>
     <div id="view-toggle" class="gnav-toggle gnav-hidden">
@@ -62,11 +78,11 @@
             <button type="button" class="gnav-theme-btn home-theme-btn" data-theme-toggle aria-label="Toggle light and dark appearance on home" title="Theme">⋯</button>
           </div>
           <nav class="home-nav" aria-label="Site sections">
-            <a href="#" class="nav-link" data-section="observer">00 — Observer</a>
-            <a href="#" class="nav-link" data-section="builder">01 — Builder</a>
-            <a href="#" class="nav-link" data-section="player">02 — Player</a>
-            <a href="#" class="nav-link" data-section="writing">03 — Thinker</a>
-            <a href="#" class="nav-link" data-section="about">04 — About</a>
+            <a href="/observer" class="nav-link" data-section="observer">00 — Observer</a>
+            <a href="/builder" class="nav-link" data-section="builder">01 — Builder</a>
+            <a href="/player" class="nav-link" data-section="player">02 — Player</a>
+            <a href="/thinker" class="nav-link" data-section="writing">03 — Thinker</a>
+            <a href="/about" class="nav-link" data-section="about">04 — About</a>
           </nav>
         </div>
       </div>
@@ -142,8 +158,9 @@
     <section class="panel panel--scroll" id="panel-about">
       <div class="panel-body panel-body--about">
         <div class="about-col">
-          <p>I work at the intersection of AI ethics,<br>product design, and human behaviour.<br>Not in one of these — across all of them.</p>
-          <p>My background spans digital transformation,<br>marketing strategy, and project delivery<br>across Asia and Europe. I build tools that make<br>complex systems legible, and ask questions that<br>systems would rather avoid.</p>
+          <p>My work moves across product systems, AI governance, and human behaviour — not as separate disciplines, but as different ways of asking the same question:</p>
+          <p class="about-italic">What do systems quietly teach people to do?</p>
+          <p>I build, question, redesign, and keep looking underneath the interface.</p>
           <p class="about-italic">Becoming oneself is a long experiment.<br>I am still running it.</p>
           <p class="about-sig"><em>ran</em>. 2026</p>
         </div>
@@ -153,8 +170,25 @@
           <p><a href="https://linkedin.com/in/ransong" target="_blank" rel="noopener" class="text-link">LinkedIn ↗</a></p>
           <p><a href="#" class="text-link">CV ↗</a></p>
           <p class="about-label">01 — INTERESTS</p>
-          <p>AI Ethics · Digital Governance<br>Photography · Fashion<br>Exhibitions · Museums · Surrealism<br>Sport · Travel · Vibe Coding</p>
+          <p>Systems, images, and the strange ways people move through them.</p>
+          <p>AI governance · Photography · Fashion archives · Exhibitions · Surrealism · Sport · Long walks in unfamiliar cities · Museums · Human behaviour</p>
         </div>
+      </div>
+    </section>
+
+    <!-- ══ 404 ════════════════════════════════════════════════ -->
+    <section class="panel panel--scroll" id="panel-404">
+      <div class="not-found">
+        <p class="not-found-kicker">404</p>
+        <h1 class="not-found-title">This page doesn&rsquo;t exist.</h1>
+        <p class="not-found-path" id="not-found-path" aria-live="polite"></p>
+        <p class="not-found-lead">The URL may be mistyped, outdated, or moved.</p>
+        <nav class="not-found-nav" aria-label="Helpful links">
+          <a href="/" class="not-found-link" data-section="home">Home</a>
+          <a href="/builder" class="not-found-link" data-section="builder">Builder</a>
+          <a href="/builder/playce" class="not-found-link">PLAYCE case study</a>
+          <a href="/observer" class="not-found-link" data-section="observer">Observer</a>
+        </nav>
       </div>
     </section>
 
@@ -190,6 +224,6 @@
   <script src="playroom-art.js"></script>
   <script src="word-drift.js"></script>
   <script src="type-speed.js"></script>
-  <script src="main.js"></script>
+  <script src="main.js?v=20260537"></script>
 </body>
 </html>
