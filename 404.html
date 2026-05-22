@@ -39,7 +39,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Spectral:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260521" />
+  <link rel="stylesheet" href="style.css?v=20260538" />
 </head>
 <body>
 
@@ -168,8 +168,8 @@
         <div class="about-col">
           <p class="about-label">00 — CONNECT</p>
           <p><a href="mailto:ran@ran-song.com" class="text-link">ran@ran-song.com</a></p>
-          <p><a href="https://linkedin.com/in/ransong" target="_blank" rel="noopener" class="text-link">LinkedIn ↗</a></p>
-          <p><a href="#" class="text-link">CV ↗</a></p>
+          <p><a href="https://www.linkedin.com/in/%E2%9A%A1-ran-song/" target="_blank" rel="noopener" class="text-link">LinkedIn ↗</a></p>
+          <p><button type="button" class="text-link about-cv-trigger" id="about-cv-trigger">CV ↗</button></p>
           <p class="about-label">01 — INTERESTS</p>
           <p>Systems, images, and the strange ways people move through them.</p>
           <p>AI governance · Photography · Fashion archives · Exhibitions · Surrealism · Sport · Long walks in unfamiliar cities · Museums · Human behaviour</p>
@@ -194,6 +194,21 @@
     </section>
 
   </main>
+
+  <!-- Contact dialog (CV) -->
+  <div class="contact-dialog" id="contact-dialog" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-dialog-title">
+    <button type="button" class="contact-dialog__backdrop" data-close-contact aria-label="Close dialog"></button>
+    <div class="contact-dialog__panel" role="document">
+      <button type="button" class="contact-dialog__close" data-close-contact aria-label="Close">CLOSE</button>
+      <p class="contact-dialog__label">Connect</p>
+      <h2 class="contact-dialog__title" id="contact-dialog-title">CV &amp; contact</h2>
+      <p class="contact-dialog__lead">Email me directly or reach out on LinkedIn.</p>
+      <div class="contact-dialog__actions">
+        <a class="contact-dialog__action" href="mailto:ran@ran-song.com?subject=CV%20request">Email ran@ran-song.com ↗</a>
+        <a class="contact-dialog__action" href="https://www.linkedin.com/in/%E2%9A%A1-ran-song/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+      </div>
+    </div>
+  </div>
 
   <!-- Image sheet -->
   <div class="img-sheet" id="img-sheet" aria-hidden="true">
@@ -225,6 +240,6 @@
   <script src="playroom-art.js"></script>
   <script src="word-drift.js"></script>
   <script src="type-speed.js"></script>
-  <script src="main.js?v=20260537"></script>
+  <script src="main.js?v=20260539"></script>
 </body>
 </html>

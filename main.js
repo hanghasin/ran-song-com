@@ -4191,3 +4191,41 @@ initTextParticles();
   applySubRoute(route.section, route.sub, { skipRoute: true, force: true });
   syncRoute(route.section, route.sub, true);
 })();
+
+(function initContactDialog() {
+  var dialog = document.getElementById('contact-dialog');
+  if (!dialog) return;
+
+  var lastFocus = null;
+
+  function openContactDialog() {
+    lastFocus = document.activeElement;
+    dialog.classList.add('open');
+    dialog.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('contact-dialog-open');
+    var closeBtn = dialog.querySelector('.contact-dialog__close');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeContactDialog() {
+    dialog.classList.remove('open');
+    dialog.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('contact-dialog-open');
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+
+  document.addEventListener('click', function (ev) {
+    if (ev.target.closest('.about-cv-trigger')) {
+      ev.preventDefault();
+      openContactDialog();
+    }
+  });
+
+  dialog.addEventListener('click', function (ev) {
+    if (ev.target.closest('[data-close-contact]')) closeContactDialog();
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && dialog.classList.contains('open')) closeContactDialog();
+  });
+})();

@@ -4090,6 +4090,132 @@ body.playroom-ts-open #cursor2 {
 .text-link { transition: opacity 0.1s; }
 .text-link:hover { opacity: 0.45; text-decoration: underline; }
 
+button.text-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+/* ── Contact dialog (About — CV) ──────────────────── */
+.contact-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.contact-dialog.open {
+  display: flex;
+}
+
+body.contact-dialog-open {
+  overflow: hidden;
+}
+
+.contact-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+}
+
+html[data-theme='light'] .contact-dialog__backdrop {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.contact-dialog__panel {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  padding: 28px 32px 32px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 24px 48px -24px rgba(0, 0, 0, 0.28);
+  box-sizing: border-box;
+}
+
+.contact-dialog__close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+
+.contact-dialog__close:hover {
+  opacity: 1;
+}
+
+.contact-dialog__label {
+  margin: 0 0 10px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.4;
+}
+
+.contact-dialog__title {
+  margin: 0 0 10px;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.contact-dialog__lead {
+  margin: 0 0 22px;
+  font-size: 12px;
+  line-height: 1.7;
+  opacity: 0.62;
+  max-width: 32em;
+}
+
+.contact-dialog__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-dialog__action {
+  display: block;
+  padding: 12px 14px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--divider);
+  background: var(--muted-fill);
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease;
+}
+
+.contact-dialog__action:hover {
+  background: var(--surface-warm);
+  border-color: var(--divider-strong);
+  opacity: 0.88;
+}
+
 /* ── IMAGE SHEET ─────────────────────────────────────*/
 .img-sheet {
   position: fixed; left: 0; right: 0; bottom: 0;
