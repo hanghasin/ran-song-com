@@ -22,6 +22,7 @@ var ITEMS = [
 /* Home hero: particle "RAN SONG" ↔ "Becoming oneself…" (both black ink) */
 var HOME_HERO_PHASE = 'intro'; // 'intro' | 'quote'
 var HOME_HERO_PARTICLE_REBUILD = null;
+var HOME_HERO_BOOT = null;
 /** Stop / resume the home canvas loop (avoids ghost layer when another panel is active). */
 var HOME_HERO_STOP_DRAW = null;
 var HOME_HERO_RESUME_DRAW = null;
@@ -1206,13 +1207,6 @@ function initTextParticles() {
 
   function bootHomeHero(force) {
     if (homeHeroBooted && !force) return;
-    if (
-      !force &&
-      HOME_HERO_PHASE === 'intro' &&
-      !introGlyphsUsable()
-    ) {
-      return;
-    }
     buildParticles();
     if (typeof HOME_HERO_RESUME_DRAW === 'function') HOME_HERO_RESUME_DRAW();
     markHomeHeroReady();
@@ -1222,7 +1216,7 @@ function initTextParticles() {
     if (homeBootFallbackTimer) return;
     homeBootFallbackTimer = setTimeout(function () {
       if (!homeHeroBooted) bootHomeHero(true);
-    }, 3500);
+    }, 1200);
   }
   var INTRO_GLYPH_MAX_VH = 0.52;
   var QUOTE_GLYPH_MAX_VH = 0.97;
@@ -1238,7 +1232,7 @@ function initTextParticles() {
   var INTRO_LINE_GAP_RATIO = 0.07;
   var DOT = 4;
   var BG_DOT = 3;
-  var GLYPH_SAMPLE = 3;
+  var GLYPH_SAMPLE = 2;
   var HOME_NAV_RESERVE = 56;
   var HOME_NAV_MENU_LINE_PX = 13;
   var HOME_NAV_MENU_LINE_GAP = 2;
@@ -1513,16 +1507,15 @@ function initTextParticles() {
       }
     }
     homeGlyphsLoaded += 1;
-    if (
-      ranGlyphBounds &&
-      songGlyphBounds &&
-      quoteGlyphBounds &&
-      ranGlyphPoints &&
-      songGlyphPoints &&
-      quoteGlyphPoints
-    ) {
+    if (introGlyphsUsable()) {
       if (!homeHeroBooted) bootHomeHero(false);
       else if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') HOME_HERO_PARTICLE_REBUILD();
+    } else if (
+      quoteGlyphsUsable() &&
+      homeHeroBooted &&
+      typeof HOME_HERO_PARTICLE_REBUILD === 'function'
+    ) {
+      HOME_HERO_PARTICLE_REBUILD();
     }
   }
 
@@ -1698,7 +1691,6 @@ function initTextParticles() {
 
   function introGlyphsUsable() {
     return (
-      homeGlyphsLoaded >= HOME_GLYPH_COUNT &&
       ranGlyphBounds &&
       songGlyphBounds &&
       ranGlyphPoints &&
@@ -1710,7 +1702,6 @@ function initTextParticles() {
 
   function quoteGlyphsUsable() {
     return (
-      homeGlyphsLoaded >= HOME_GLYPH_COUNT &&
       quoteGlyphBounds &&
       quoteGlyphPoints &&
       quoteGlyphPoints.length > 0
@@ -1902,7 +1893,8 @@ function initTextParticles() {
       quoteUseGlyphs = quoteGlyphsUsable();
       if (quoteUseGlyphs) {
         var quoteFitW = heroGlyphFitWidth(W, band, padX);
-        quoteGlyphLayout = fitQuoteGlyphLayout(quoteFitW, Math.round(H * QUOTE_GLYPH_MAX_VH));
+        var quoteMaxVh = W < 620 ? 0.84 : QUOTE_GLYPH_MAX_VH;
+        quoteGlyphLayout = fitQuoteGlyphLayout(quoteFitW, Math.round(H * quoteMaxVh));
         introBlockW = quoteGlyphLayout.w;
         introTopPx = heroStackTopPx(H, padY, quoteGlyphLayout.h);
         quoteTopPx = introTopPx;
@@ -2346,7 +2338,9 @@ function initTextParticles() {
     });
 
     var drawTextDot =
-      HOME_HERO_PHASE === 'quote' && quoteGlyphsUsable() ? 5 : DOT;
+      HOME_HERO_PHASE === 'quote' && quoteGlyphsUsable()
+        ? (W < 620 ? 6 : 5)
+        : DOT;
 
     drawParticleLayer(textParticles, {
       ink: particleDotInk,
@@ -2373,11 +2367,10 @@ function initTextParticles() {
     raf = requestAnimationFrame(draw);
   }
 
-  // Mouse tracking: drag physics + oneself → portrait
-  container.addEventListener('mousemove', function(e) {
+  function updateHeroPointer(clientX, clientY) {
     var rect = container.getBoundingClientRect();
-    var mx = e.clientX - rect.left;
-    var my = e.clientY - rect.top;
+    var mx = clientX - rect.left;
+    var my = clientY - rect.top;
     if (prevMX > -9000) {
       mouseDX = mx - prevMX;
       mouseDY = my - prevMY;
@@ -2386,7 +2379,6 @@ function initTextParticles() {
     mouseX = mx; mouseY = my;
     mouseActive = true;
 
-    // Portrait reveal on "oneself" zone
     var inZone = mx >= oneselfZone.x1 && mx <= oneselfZone.x2 &&
                  my >= oneselfZone.y1 && my <= oneselfZone.y2;
     if (portrait) portrait.style.opacity = inZone ? '0.75' : '0';
@@ -2398,6 +2390,13 @@ function initTextParticles() {
     if (introHit === 'song') hoverSong = true;
     if (introHit) container.setAttribute('data-hover-zone', introHit);
     else container.removeAttribute('data-hover-zone');
+  }
+
+  container.addEventListener('mousemove', function(e) {
+    updateHeroPointer(e.clientX, e.clientY);
+  });
+  container.addEventListener('pointermove', function(e) {
+    if (e.pointerType !== 'mouse') updateHeroPointer(e.clientX, e.clientY);
   });
   container.addEventListener('mouseleave', function() {
     mouseActive = false;
@@ -2462,6 +2461,7 @@ function initTextParticles() {
   });
 
   HOME_HERO_PARTICLE_REBUILD = buildParticles;
+  HOME_HERO_BOOT = bootHomeHero;
 
   HOME_HERO_STOP_DRAW = function () {
     if (raf != null) {
@@ -2477,6 +2477,13 @@ function initTextParticles() {
   };
 
   scheduleHomeBootFallback();
+
+  var phInit = document.getElementById('panel-home');
+  if (phInit && phInit.classList.contains('panel--active') && !homeHeroBooted) {
+    bootHomeHero(true);
+  } else if (phInit && phInit.classList.contains('panel--active')) {
+    HOME_HERO_RESUME_DRAW();
+  }
 
   var resizeTimer;
   window.addEventListener('resize', function() {
@@ -2561,7 +2568,15 @@ function showSection(id, opts) {
 
   if (id === 'home') {
     HOME_HERO_PHASE = 'intro';
-    if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') HOME_HERO_PARTICLE_REBUILD();
+    if (typeof HOME_HERO_BOOT === 'function') {
+      HOME_HERO_BOOT(true);
+    } else if (typeof HOME_HERO_PARTICLE_REBUILD === 'function') {
+      HOME_HERO_PARTICLE_REBUILD();
+      document.documentElement.classList.add('home-ready');
+      document.documentElement.classList.remove('home-boot');
+      var phReady = document.getElementById('panel-home');
+      if (phReady) phReady.classList.add('home-hero-ready');
+    }
     nav.classList.remove('visible');
     if (typeof HOME_HERO_RESUME_DRAW === 'function') HOME_HERO_RESUME_DRAW();
     document.title = 'Ran Song';
@@ -2900,13 +2915,13 @@ function caseStudyVideoHtml(src) {
             '<input type="range" class="vid-seek" min="0" max="1000" value="0" aria-label="Playback position" />' +
           '</div>' +
           '<span class="vid-time">0:00 / 0:00</span>' +
+          '<button type="button" class="vid-fullscreen" aria-label="Full screen video">[ FULL ]</button>' +
           '<div class="vid-speeds">' +
             '<button type="button" class="vid-spd" data-spd="0.5">×0.5</button>' +
             '<button type="button" class="vid-spd vid-spd--active" data-spd="1">×1</button>' +
             '<button type="button" class="vid-spd" data-spd="1.5">×1.5</button>' +
             '<button type="button" class="vid-spd" data-spd="2">×2</button>' +
           '</div>' +
-          '<button type="button" class="vid-fullscreen" aria-label="Full screen video">[ FULL ]</button>' +
           '<div class="vid-vol-group">' +
             '<button type="button" class="vid-mute">[ SOUND ]</button>' +
             '<input type="range" class="vid-vol-slider" min="0" max="1" step="0.05" value="1" aria-label="Volume" />' +
@@ -2961,13 +2976,13 @@ function caseStudyVideoHtml(src) {
           '<input type="range" class="vid-seek" min="0" max="1000" value="0" aria-label="Playback position" />' +
         '</div>' +
         '<span class="vid-time"></span>' +
+        '<button type="button" class="vid-fullscreen" aria-label="Full screen video">[ FULL ]</button>' +
         '<div class="vid-speeds">' +
           '<button type="button" class="vid-spd" data-spd="0.5">×0.5</button>' +
           '<button type="button" class="vid-spd vid-spd--active" data-spd="1">×1</button>' +
           '<button type="button" class="vid-spd" data-spd="1.5">×1.5</button>' +
           '<button type="button" class="vid-spd" data-spd="2">×2</button>' +
         '</div>' +
-        '<button type="button" class="vid-fullscreen" aria-label="Full screen video">[ FULL ]</button>' +
         '<div class="vid-vol-group">' +
           '<button type="button" class="vid-mute">[ MUTE ]</button>' +
           '<input type="range" class="vid-vol-slider" min="0" max="1" step="0.05" value="0" aria-label="Volume" />' +
@@ -4184,7 +4199,7 @@ initTextParticles();
     return;
   }
   if (route.section === 'home') {
-    syncRoute('home', null, true);
+    showSection('home', { skipRoute: true, force: true });
     return;
   }
   showSection(route.section, { skipRoute: true, force: true });

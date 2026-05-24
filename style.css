@@ -2080,6 +2080,8 @@ html.gov-figure-zoom-open body {
   min-width: 72px;
   display: flex;
   align-items: center;
+  padding-right: 6px;
+  box-sizing: border-box;
 }
 
 .vid-seek {
@@ -2114,20 +2116,113 @@ html.gov-figure-zoom-open body {
   letter-spacing: 0.06em;
   opacity: 0.45;
   font-variant-numeric: tabular-nums;
+  grid-area: time;
+  white-space: nowrap;
 }
 
-/* Control bar */
+/* Control bar — fixed two-row grid (play/seek/time/full, then speed + volume) */
 .vid-bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    "play seek time full"
+    "speed speed speed vol";
+  column-gap: 12px;
+  row-gap: 10px;
   align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
   flex-shrink: 0;
-  padding: 8px 14px;
+  padding: 10px 14px 12px;
   border-top: none;
   background: var(--surface);
   font-size: 9px;
   letter-spacing: 0.06em;
+  box-sizing: border-box;
+}
+
+.vid-playpause { grid-area: play; }
+.vid-progress-wrap { grid-area: seek; min-width: 0; width: 100%; }
+.vid-fullscreen { grid-area: full; white-space: nowrap; }
+.vid-speeds {
+  grid-area: speed;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  justify-self: start;
+}
+.vid-vol-group {
+  grid-area: vol;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: end;
+  min-width: 0;
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .vid-bar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "play seek time"
+      "speed speed speed"
+      "full vol vol";
+    column-gap: 10px;
+    row-gap: 10px;
+    padding: 10px 12px 12px;
+  }
+
+  .vid-progress-wrap {
+    min-width: 56px;
+    padding-right: 8px;
+  }
+
+  .vid-time {
+    min-width: 68px;
+    text-align: right;
+  }
+
+  .vid-speeds {
+    gap: 10px;
+    font-size: 8px;
+    justify-self: stretch;
+    flex-wrap: nowrap;
+  }
+
+  .vid-fullscreen {
+    justify-self: start;
+  }
+
+  .vid-vol-group {
+    justify-self: end;
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .vid-vol-slider {
+    width: min(72px, 28vw);
+    flex-shrink: 1;
+  }
+
+  .vid-playpause,
+  .vid-mute,
+  .vid-fullscreen {
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .vid-vol-slider {
+    display: none;
+  }
+
+  .vid-vol-group {
+    justify-content: flex-end;
+  }
 }
 .vid-playpause,
 .vid-mute,
@@ -2138,7 +2233,6 @@ html.gov-figure-zoom-open body {
 }
 .vid-playpause:hover, .vid-mute:hover, .vid-fullscreen:hover { background: var(--invert-bg); color: var(--invert-fg); }
 
-.vid-speeds  { display: flex; align-items: center; gap: 10px; }
 .vid-spd {
   font-family: inherit; font-size: 9px; letter-spacing: 0.04em;
   border: none; background: none; color: #aaa; padding: 0;
@@ -2146,9 +2240,6 @@ html.gov-figure-zoom-open body {
 .vid-spd--active { color: var(--text); border-bottom: 1px solid var(--border); }
 .vid-spd:hover   { color: var(--text); }
 
-.vid-vol-group {
-  display: flex; align-items: center; gap: 10px; margin-left: auto;
-}
 .vid-vol-slider {
   -webkit-appearance: none; width: 90px; height: 2px;
   background: var(--vol-track); outline: none; border-radius: 1px;
@@ -2164,7 +2255,12 @@ html.gov-figure-zoom-open body {
 .cs-img-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
 
 /* ── PLAYER — compact 2×2 card grid (monochrome framing) ─*/
-#panel-player { overflow: hidden; background: var(--surface); }
+#panel-player {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: var(--surface);
+}
 
 .player-wrap {
   height: calc(100vh - 40px);
@@ -2331,7 +2427,15 @@ html[data-theme='dark'] .pc-art-box svg {
   position: absolute; top: 16px; right: 24px;
   font-family: inherit; font-size: 10px; letter-spacing: 0.08em;
   color: #A14A2A;
-  opacity: 0.55; transition: opacity 0.1s, color 0.1s; z-index: 1;
+  opacity: 0.55; transition: opacity 0.1s, color 0.1s; z-index: 10050;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  touch-action: manipulation;
 }
 
 .gfs-game-theme-btn {
@@ -2345,7 +2449,15 @@ html[data-theme='dark'] .pc-art-box svg {
   opacity: 0.42;
   cursor: pointer;
   transition: opacity 0.1s;
-  z-index: 2;
+  z-index: 10050;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 10px;
+  touch-action: manipulation;
 }
 .gfs-game-theme-btn:hover { opacity: 0.9; }
 .gfs-close:hover { opacity: 1; color: #1a1714; }
@@ -4237,12 +4349,57 @@ html[data-theme='light'] .contact-dialog__backdrop {
 
 /* ── RESPONSIVE ─────────────────────────────────────*/
 @media (max-width: 900px) {
+  .global-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .global-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gnav-link {
+    flex-shrink: 0;
+  }
+
   .home-nav {
     gap: 6px clamp(10px, 2vw, 20px);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    max-width: calc(100vw - clamp(20px, 5vw, 40px));
+  }
+
+  .home-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .home-nav .nav-link {
     font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .gfs-body {
+    padding: 48px 16px 32px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .gfs-body--sudoku,
+  .gfs-body--memory {
+    width: 100%;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+  }
+
+  .gfs-body--scroll {
+    padding-top: 44px;
   }
 
   .builder-recent { grid-template-columns: 1fr; }
@@ -4265,7 +4422,9 @@ html[data-theme='light'] .contact-dialog__backdrop {
   .player-cell:nth-child(n+3) { border-bottom: 1px solid var(--border); }
   .player-cell:last-child     { border-bottom: none; }
   .player-wrap {
-    padding: 16px 20px 28px;
+    height: auto;
+    min-height: calc(100vh - 40px);
+    padding: 16px 20px 48px;
     gap: 28px;
   }
   .not-found {
